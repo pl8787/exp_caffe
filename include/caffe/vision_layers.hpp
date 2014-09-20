@@ -261,6 +261,44 @@ class ConvolutionLayer : public Layer<Dtype> {
   int N_;
 };
 
+template <typename Dtype>
+class ColinearConvolutionLayer : public Layer<Dtype> {
+ public:
+  explicit ColinearConvolutionLayer(const LayerParameter& param)
+      : Layer<Dtype>(param) {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  virtual Dtype Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+  virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+
+  int kernel_size_;
+  int stride_;
+  int num_;
+  int channels_;
+  int pad_;
+  int height_;
+  int width_;
+  int num_output_;
+  int group_;
+  int cor_size_;   // Corelation Matrix size
+  Blob<Dtype> col_buffer_;
+  shared_ptr<SyncedMemory> bias_multiplier_;
+  bool quadratic_term_;
+  bool linear_term_;
+  bool bias_term_;
+  int M_;
+  int K_;
+  int N_;
+};
+
 // This function is used to create a pthread that prefetches the data.
 template <typename Dtype>
 void* DataLayerPrefetch(void* layer_pointer);

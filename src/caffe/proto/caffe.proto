@@ -124,6 +124,7 @@ message LayerParameter {
     BNLL = 2;
     CONCAT = 3;
     CONVOLUTION = 4;
+	COLINEAR_CONVOLUTION = 30;
     DATA = 5;
     DROPOUT = 6;
     EUCLIDEAN_LOSS = 7;
@@ -163,6 +164,7 @@ message LayerParameter {
   // Parameters for particular layer types.
   optional ConcatParameter concat_param = 9;
   optional ConvolutionParameter convolution_param = 10;
+  optional ColinearConvolutionParameter colinear_convolution_param = 23;
   optional DataParameter data_param = 11;
   optional DropoutParameter dropout_param = 12;
   optional HDF5DataParameter hdf5_data_param = 13;
@@ -200,6 +202,21 @@ message ConvolutionParameter {
   optional uint32 stride = 6 [default = 1]; // The stride
   optional FillerParameter weight_filler = 7; // The filler for the weight
   optional FillerParameter bias_filler = 8; // The filler for the bias
+}
+
+// Message that stores parameters used by ColinearConvolutionLayer
+message ColinearConvolutionParameter {
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional bool quadratic_term = 2 [default = true]; // whether to have second order terms
+  optional bool linear_term = 3 [default = true]; // whether to have first order terms
+  optional bool bias_term = 4 [default = true]; // whether to have bias terms
+  optional uint32 pad = 5 [default = 0]; // The padding size
+  optional uint32 kernel_size = 6; // The kernel size
+  optional uint32 group = 7 [default = 1]; // The group size for group conv
+  optional uint32 stride = 8 [default = 1]; // The stride
+  optional FillerParameter quadratic_weight_filler = 9; // The filler for the quadratic weight
+  optional FillerParameter linear_weight_filler = 10; // The filler for the linear weight
+  optional FillerParameter bias_filler = 11; // The filler for the bias
 }
 
 // Message that stores parameters used by DataLayer

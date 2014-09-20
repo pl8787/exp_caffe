@@ -30,6 +30,8 @@ namespace caffe {
 			return new ConcatLayer<Dtype>(param);
 		case LayerParameter_LayerType_CONVOLUTION:
 			return new ConvolutionLayer<Dtype>(param);
+		case LayerParameter_LayerType_COLINEAR_CONVOLUTION:
+			return new ColinearConvolutionLayer<Dtype>(param);
 		case LayerParameter_LayerType_DATA:
 			return new DataLayer<Dtype>(param);
 		case LayerParameter_LayerType_DROPOUT:
