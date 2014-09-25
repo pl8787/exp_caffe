@@ -43,7 +43,9 @@ namespace caffe {
 	}
 
 	void WriteProtoToTextFile(const Message& proto, const char* filename) {
-		int fd = open(filename, O_WRONLY);
+		int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC);
+		printf("filename: %s, fd: %d\n", filename, fd);
+		if (fd == -1) return;
 		FileOutputStream* output = new FileOutputStream(fd);
 		CHECK(google::protobuf::TextFormat::Print(proto, output));
 		delete output;
@@ -68,6 +70,11 @@ namespace caffe {
 	void WriteProtoToBinaryFile(const Message& proto, const char* filename) {
 		fstream output(filename, ios::out | ios::trunc | ios::binary);
 		CHECK(proto.SerializeToOstream(&output));
+		if (output.is_open())
+		{
+			printf("output need close!\n");
+			output.close();
+		}
 	}
 
 	bool ReadImageToDatum(const string& filename, const int label,

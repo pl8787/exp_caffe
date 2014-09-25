@@ -158,6 +158,7 @@ namespace caffe {
 		filename += iter_str_buffer;
 		LOG(INFO) << "Snapshotting to " << filename;
 		WriteProtoToBinaryFile(net_param, filename.c_str());
+		WriteProtoToTextFile(net_param, (filename+"_t").c_str());
 		SolverState state;
 		SnapshotSolverState(&state);
 		state.set_iter(iter_);
@@ -165,6 +166,7 @@ namespace caffe {
 		filename += ".solverstate";
 		LOG(INFO) << "Snapshotting solver state to " << filename;
 		WriteProtoToBinaryFile(state, filename.c_str());
+		WriteProtoToTextFile(state, (filename+"_t").c_str());
 	}
 
 	template <typename Dtype>
