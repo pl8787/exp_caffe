@@ -33,9 +33,12 @@ namespace caffe {
 					width_, kernel_size_, pad_, stride_, col_data);
 				// Second, add quadratic term
 				if (quadratic_term_) {
+					int n_threads = num_output_*out_height*out_width;
 					CUDA_POST_KERNEL_CHECK;
 					QuadraticActivation<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
-						(num_output_*out_height*out_width, col_data, q_weight, n, num_output_, out_height, out_width, cor_size_, top_data);
+						(n_threads, col_data, q_weight, n, 
+						num_output_, out_height, out_width, cor_size_, 
+						img_offset, top_data);
 					CUDA_POST_KERNEL_CHECK;
 
 				}
@@ -106,7 +109,13 @@ namespace caffe {
 					width_, kernel_size_, pad_, stride_, col_data);
 
 				if (quadratic_term_) {
-
+					int n_threads = num_output_*cor_size_offset;
+					CUDA_POST_KERNEL_CHECK;
+					QuadraticDWeight<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
+						(n_threads, col_data, top_diff, n, 
+						num_output_, out_height, out_width, cor_size_, 
+						img_offset, q_weight_diff);
+					CUDA_POST_KERNEL_CHECK;
 				}
 
 				// gradient w.r.t. weight. Note that we will accumulate diffs.
@@ -123,7 +132,13 @@ namespace caffe {
 				// gradient w.r.t. bottom data, if necessary
 				if (propagate_down) {
 					if (quadratic_term_) {
-
+						int n_threads = cor_size_offset*out_height*out_width;
+						CUDA_POST_KERNEL_CHECK;
+						QuadraticError<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
+							(n_threads, col_data, top_diff, q_weight, n, 
+							num_output_, out_height, out_width, cor_size_, 
+							img_offset, cor_size_offset, col_diff);
+						CUDA_POST_KERNEL_CHECK;
 					}
 
 					if (linear_term_) {
@@ -146,29 +161,81 @@ namespace caffe {
 	__global__ void QuadraticActivation(
 		const int nthreads, const Dtype * col_data, const Dtype * q_weight, const int n,
 		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
-		Dtype * top_data) {
+		const int img_offset, Dtype * top_data) {
 			CUDA_KERNEL_LOOP(index, nthreads) {
 				int m = index / out_height / out_width;
 				int h = (index / out_width) % out_height;
 				int w = index % out_width;
-				Dtype val = 0.0;
+				int col_buffer_offset = (h*out_width+w);
+				int blob2_offset = m*cor_size_*cor_size_;
+				Dtype rtn = 0.0;
+				const Dtype* pv1 = col_data + col_buffer_offset;
+				const Dtype* pv2 = q_weight + blob2_offset;
 				for (int x = 0; x < cor_size_; ++x) {
+					const Dtype* pv3 = col_data + col_buffer_offset;
 					for (int y = 0; y < cor_size_; ++y) {
-
+						rtn += (*pv1) * (*pv2) * (*pv3);
+						pv2 ++;
+						pv3 += img_offset;
 					}
+					pv1 += img_offset;
 				}
+				*(top_data + (((n*num_output_ + m)*out_height + h)*out_width + w)) = rtn; 
 			}
 
 	}
 
 	template <typename Dtype>
-	__global__ void QuadraticError() {
+	__global__ void QuadraticDWeight(const int nthreads, const Dtype * col_data, const Dtype * top_diff, const int n,
+		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
+		const int img_offset, Dtype * q_weight_diff) {
+			CUDA_KERNEL_LOOP(index, nthreads) {
+				int m = index / cor_size_ / cor_size_;
+				int x = (index / cor_size_) % cor_size_;
+				int y = index % cor_size_;
 
+				Dtype rtn = 0.0;
+				const Dtype* pv1 = top_diff + (n*num_output_ + m)*cor_size_*cor_size_;
+				const Dtype* pv2 = col_data + x*img_offset;
+				const Dtype* pv3 = col_data + y*img_offset;
+
+				for (int i = 0; i < img_offset; ++i) {
+					rtn += (*pv1) * (*pv2) * (*pv3);
+					++pv1;
+					++pv2;
+					++pv3;
+				}
+
+				*(q_weight_diff + ((m*cor_size_ + x)*cor_size_ + y)) = rtn;
+
+			}
 	}
 
 	template <typename Dtype>
-	__global__ void QuadraticDWeight() {
+	__global__ void QuadraticError(const int nthreads, const Dtype * col_data, const Dtype * top_diff, const Dtype * q_weight, const int n,
+		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
+		const int img_offset, const int cor_size_offset, Dtype * col_diff) {
+			CUDA_KERNEL_LOOP(index, nthreads) {
+				int x = index / out_height / out_width;
+				int h = (index / out_width) % out_height;
+				int w = index % out_width;
 
+				Dtype rtn = 0.0;
+										
+				const Dtype* pv2 = col_data + h*out_width+w;
+				for (int y = 0; y < cor_size_; ++y) {
+					const Dtype* pv1 = top_diff + (n*num_output_*img_offset + h)*out_width + w;
+					const Dtype* pv3 = q_weight + (x*cor_size_ + y);
+					for (int m = 0; m < num_output_; ++m) {
+						rtn += 2 * (*pv1) * (*pv2) * (*pv3);
+						pv1 += img_offset;
+						pv3 += cor_size_offset;
+					}
+					pv2 += img_offset;
+				}
+										
+				*(col_diff + (x*out_height + h)*out_width + w) = rtn;
+			}
 	}
 
 	INSTANTIATE_CLASS(ColinearConvolutionLayer);
