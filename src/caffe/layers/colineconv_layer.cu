@@ -28,6 +28,7 @@ namespace caffe {
 			int cor_size_offset = cor_size_*cor_size_;
 
 			for (int n = 0; n < num_; ++n) {
+				//LOG(INFO) << "Colinear Forward img " << n;
 				// First, im2col
 				im2col_gpu(bottom_data + bottom[0]->offset(n), channels_, height_,
 					width_, kernel_size_, pad_, stride_, col_data);
@@ -132,7 +133,7 @@ namespace caffe {
 				// gradient w.r.t. bottom data, if necessary
 				if (propagate_down) {
 					if (quadratic_term_) {
-						int n_threads = cor_size_offset*out_height*out_width;
+						int n_threads = cor_size_*out_height*out_width;
 						CUDA_POST_KERNEL_CHECK;
 						QuadraticError<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
 							(n_threads, col_data, top_diff, q_weight, n, 
@@ -195,7 +196,7 @@ namespace caffe {
 				int y = index % cor_size_;
 
 				Dtype rtn = 0.0;
-				const Dtype* pv1 = top_diff + (n*num_output_ + m)*cor_size_*cor_size_;
+				const Dtype* pv1 = top_diff + (n*num_output_ + m)*img_offset;
 				const Dtype* pv2 = col_data + x*img_offset;
 				const Dtype* pv3 = col_data + y*img_offset;
 
@@ -222,9 +223,9 @@ namespace caffe {
 
 				Dtype rtn = 0.0;
 										
-				const Dtype* pv2 = col_data + h*out_width+w;
+				const Dtype* pv2 = col_data + (h*out_width + w);
 				for (int y = 0; y < cor_size_; ++y) {
-					const Dtype* pv1 = top_diff + (n*num_output_*img_offset + h)*out_width + w;
+					const Dtype* pv1 = top_diff + (n*num_output_*out_height + h)*out_width + w;
 					const Dtype* pv3 = q_weight + (x*cor_size_ + y);
 					for (int m = 0; m < num_output_; ++m) {
 						rtn += 2 * (*pv1) * (*pv2) * (*pv3);

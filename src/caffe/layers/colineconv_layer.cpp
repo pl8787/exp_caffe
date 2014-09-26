@@ -117,6 +117,7 @@ namespace caffe {
 			int cor_size_offset = cor_size_*cor_size_;
 
 			for (int n = 0; n < num_; ++n) {
+				LOG(INFO) << "Colinear Forward img " << n;
 				// First, im2col
 				im2col_cpu(bottom_data + bottom[0]->offset(n), channels_, height_,
 					width_, kernel_size_, pad_, stride_, col_data);

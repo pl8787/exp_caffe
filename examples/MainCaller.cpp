@@ -8,3 +8,5 @@
 //#include "../../tools/extract_features.cpp"
 //#include "../../tools/convert_imageset.cpp"
 //#include "../../tools/compute_image_mean.cpp"
+
+//#include "../../examples/cifar10/convert_cifar_data.cpp"
