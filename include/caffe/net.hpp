@@ -65,8 +65,6 @@ class Net {
 
   Dtype ForwardBackward(const vector<Blob<Dtype>* > & bottom) {
     Dtype loss;
-	cudaThreadSynchronize();
-	ShowGPUInfo();
     Forward(bottom, &loss);
     Backward();
     return loss;
