@@ -61,6 +61,8 @@ namespace caffe {
 		LOG(INFO) << "Solving " << net_->name();
 		PreSolve();
 
+		LOG(INFO) << "PreSolved " << net_->name();
+
 		iter_ = 0;
 		if (resume_file) {
 			LOG(INFO) << "Restoring previous solver status from " << resume_file;

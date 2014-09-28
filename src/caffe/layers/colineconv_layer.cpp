@@ -67,6 +67,9 @@ namespace caffe {
 						this->layer_param_.colinear_convolution_param().bias_filler()));
 					bias_filler->Fill(this->blobs_[0].get());
 				}
+				else {
+					this->blobs_[0].reset(new Blob<Dtype>(1, 1, 1, num_output_));
+				}
 				// If necessary, initialize and fill the linear term
 				if (linear_term_) {
 					this->blobs_[1].reset(new Blob<Dtype>(
@@ -76,6 +79,9 @@ namespace caffe {
 						this->layer_param_.colinear_convolution_param().linear_weight_filler()));
 					weight_filler->Fill(this->blobs_[1].get());
 				}
+				else {
+					this->blobs_[1].reset(new Blob<Dtype>(1, 1, 1, num_output_));
+				}
 				// If necessary, initialize and fill the quadratic term
 				if (quadratic_term_) {
 					this->blobs_[2].reset(new Blob<Dtype>(
@@ -84,6 +90,9 @@ namespace caffe {
 					shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
 						this->layer_param_.colinear_convolution_param().quadratic_weight_filler()));
 					weight_filler->Fill(this->blobs_[2].get());
+				}
+				else {
+					this->blobs_[2].reset(new Blob<Dtype>(1, 1, 1, num_output_));
 				}
 
 			}

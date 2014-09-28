@@ -22,7 +22,7 @@ display: 100
 max_iter: 5000
 # snapshot intermediate results
 snapshot: 5000
-snapshot_prefix: "cifar10_quick"
+snapshot_prefix: "cifar10_quick_co"
 # solver mode: CPU or GPU
 solver_mode: GPU
 device_id: 1
