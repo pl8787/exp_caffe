@@ -1,0 +1,7 @@
+$\frac{\partial E}{\partial f_{xyn}} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial f_{xyn}} = \sum_i  \epsilon_{in} e_{ix} e_{iy}$
+$\frac{\partial E}{\partial s_{xn}} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial s_{xn}} = \sum_i  \epsilon_{in} e_{ix}$
+$\frac{\partial E}{\partial b_n} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial b_n} = \sum_i  \epsilon_{in}$
+
+$\frac{\partial E}{\partial e_{ix}} = \sum_n \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial e_{ix}} = \sum_n  \epsilon_{in} ((2 \sum_y f_{xyn} e_{iy}) + s_{xn})$
+
+$\frac{\partial E}{\partial e_{ix}} = \sum_n \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial e_{ix}} = \sum_n  \epsilon_{in} ((\sum_y (f_{xyn} + f_{yxn}) e_{iy}) + s_{xn})$
