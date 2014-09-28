@@ -165,7 +165,8 @@ namespace caffe {
 					for (int g = 0; g < group_; ++g) {
 						caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, K_,
 							(Dtype)1., weight + weight_offset * g, col_data + col_offset * g,
-							(Dtype)1., top_data + (*top)[0]->offset(n) + top_offset * g);
+							quadratic_term_?(Dtype)1.:(Dtype)0.,
+							top_data + (*top)[0]->offset(n) + top_offset * g);
 					}
 				}
 				// Fourth, add bias
@@ -301,7 +302,8 @@ namespace caffe {
 							caffe_cpu_gemm<Dtype>(CblasTrans, CblasNoTrans, K_, N_, M_,
 								(Dtype)1., weight + weight_offset * g,
 								top_diff + top[0]->offset(n) + top_offset * g,
-								(Dtype)1., col_diff + col_offset * g);
+								quadratic_term_?(Dtype)1.:(Dtype)0., 
+								col_diff + col_offset * g);
 						}
 					}
 

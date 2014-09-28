@@ -198,4 +198,40 @@ TYPED_TEST(ColinearConvolutionLayerTest, TestGPUGradientOnlyQ) {
   checker.CheckGradientExhaustive(&layer, &(this->blob_bottom_vec_),
       &(this->blob_top_vec_));
 }
+
+TYPED_TEST(ColinearConvolutionLayerTest, TestCPUGradientOnlyL) {
+  LayerParameter layer_param;
+  ColinearConvolutionParameter* convolution_param =
+      layer_param.mutable_colinear_convolution_param();
+  convolution_param->set_kernel_size(3);
+  convolution_param->set_stride(2);
+  convolution_param->set_num_output(2);
+  convolution_param->set_quadratic_term(false);
+  convolution_param->mutable_quadratic_weight_filler()->set_type("gaussian");
+  convolution_param->mutable_linear_weight_filler()->set_type("gaussian");
+  convolution_param->mutable_bias_filler()->set_type("gaussian");
+  Caffe::set_mode(Caffe::CPU);
+  ColinearConvolutionLayer<TypeParam> layer(layer_param);
+  GradientChecker<TypeParam> checker(1e-2, 1e-3);
+  checker.CheckGradientExhaustive(&layer, &(this->blob_bottom_vec_),
+      &(this->blob_top_vec_));
+}
+
+TYPED_TEST(ColinearConvolutionLayerTest, TestGPUGradientOnlyL) {
+  LayerParameter layer_param;
+  ColinearConvolutionParameter* convolution_param =
+      layer_param.mutable_colinear_convolution_param();
+  convolution_param->set_kernel_size(3);
+  convolution_param->set_stride(2);
+  convolution_param->set_num_output(2);
+  convolution_param->set_quadratic_term(false);
+  convolution_param->mutable_quadratic_weight_filler()->set_type("gaussian");
+  convolution_param->mutable_linear_weight_filler()->set_type("gaussian");
+  convolution_param->mutable_bias_filler()->set_type("gaussian");
+  Caffe::set_mode(Caffe::GPU);
+  ColinearConvolutionLayer<TypeParam> layer(layer_param);
+  GradientChecker<TypeParam> checker(1e-2, 1e-3);
+  checker.CheckGradientExhaustive(&layer, &(this->blob_bottom_vec_),
+      &(this->blob_top_vec_));
+}
 }  // namespace caffe
