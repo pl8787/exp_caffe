@@ -2,7 +2,7 @@
 
 // The main caffe test code. Your test cpp code should include this hpp
 // to allow a main function to be compiled into the binary.
-#define CAFFE_TEST_TEST_CAFFE_MAIN_HPP_
+//#define CAFFE_TEST_TEST_CAFFE_MAIN_HPP_
 #ifndef CAFFE_TEST_TEST_CAFFE_MAIN_HPP_
 #define CAFFE_TEST_TEST_CAFFE_MAIN_HPP_
 

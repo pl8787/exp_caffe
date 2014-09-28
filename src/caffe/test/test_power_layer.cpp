@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <cmath>
 
 #include "cuda_runtime.h"
 #include "gtest/gtest.h"
@@ -14,7 +15,7 @@
 
 #include "caffe/test/test_caffe_main.hpp"
 
-using std::isnan;
+#define isnan(x) _isnan(x)
 
 namespace caffe {
 
