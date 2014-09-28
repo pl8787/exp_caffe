@@ -165,7 +165,7 @@ namespace caffe {
 					for (int g = 0; g < group_; ++g) {
 						caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, K_,
 							(Dtype)1., weight + weight_offset * g, col_data + col_offset * g,
-							(Dtype)0., top_data + (*top)[0]->offset(n) + top_offset * g);
+							(Dtype)1., top_data + (*top)[0]->offset(n) + top_offset * g);
 					}
 				}
 				// Fourth, add bias
@@ -243,7 +243,7 @@ namespace caffe {
 										++pv3;
 									}
 
-									*(q_weight_diff + this->blobs_[2]->offset(0,m,x,y)) = rtn;
+									*(q_weight_diff + this->blobs_[2]->offset(0,m,x,y)) += rtn;
 								}
 							}
 						}
@@ -279,11 +279,12 @@ namespace caffe {
 										for (int y = 0; y < cor_size_; ++y) {
 											const Dtype* pv1 = top_diff + top[0]->offset(n,0,h,w);
 											const Dtype* pv3 = q_weight + this->blobs_[2]->offset(0,0,x,y);
-											int check_size = this->blobs_[2]->offset(0,0,x,y);
+											const Dtype* pv4 = q_weight + this->blobs_[2]->offset(0,0,y,x);
 											for (int m = 0; m < num_output_; ++m) {
-												rtn += 2 * (*pv1) * (*pv2) * (*pv3);
+												rtn += (*pv1) * (*pv2) * (*pv3 + *pv4);
 												pv1 += img_offset;
 												pv3 += cor_size_offset;
+												pv4 += cor_size_offset;
 											}
 											pv2 += img_offset;
 										}
@@ -300,7 +301,7 @@ namespace caffe {
 							caffe_cpu_gemm<Dtype>(CblasTrans, CblasNoTrans, K_, N_, M_,
 								(Dtype)1., weight + weight_offset * g,
 								top_diff + top[0]->offset(n) + top_offset * g,
-								(Dtype)0., col_diff + col_offset * g);
+								(Dtype)1., col_diff + col_offset * g);
 						}
 					}
 

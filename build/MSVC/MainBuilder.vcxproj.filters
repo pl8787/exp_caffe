@@ -193,10 +193,25 @@
     <ClCompile Include="..\..\src\caffe\layers\colineconv_layer.cpp">
       <Filter>caffe\layers</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\caffe\test\test_convolution_layer.cpp">
+      <Filter>caffe\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\caffe\test\test_colinear_convolution_layer.cpp">
+      <Filter>caffe\test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\caffe\proto\caffe.pb.h">
       <Filter>caffe\proto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\caffe\test\test_gradient_check_util.hpp">
+      <Filter>caffe\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\caffe\test\test_caffe_main.hpp">
+      <Filter>caffe\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\caffe\util\unistd.h">
+      <Filter>caffe\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

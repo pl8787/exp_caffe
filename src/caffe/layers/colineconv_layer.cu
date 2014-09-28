@@ -28,7 +28,7 @@ namespace caffe {
 			int cor_size_offset = cor_size_*cor_size_;
 
 			for (int n = 0; n < num_; ++n) {
-				LOG(INFO) << "Colinear Forward img " << n;
+				//LOG(INFO) << "Colinear Forward img " << n;
 				// First, im2col
 				im2col_gpu(bottom_data + bottom[0]->offset(n), channels_, height_,
 					width_, kernel_size_, pad_, stride_, col_data);
@@ -48,7 +48,7 @@ namespace caffe {
 					for (int g = 0; g < group_; ++g) {
 						caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, K_,
 							(Dtype)1., weight + weight_offset * g, col_data + col_offset * g,
-							(Dtype)0., top_data + (*top)[0]->offset(n) + top_offset * g);
+							(Dtype)1., top_data + (*top)[0]->offset(n) + top_offset * g);
 					}
 				}
 				// Fourth, add bias
@@ -81,7 +81,7 @@ namespace caffe {
 			Dtype* bias_diff = NULL;
 
 			if (bias_term_) {
-				bias_diff = this->blobs_[1]->mutable_gpu_diff();
+				bias_diff = this->blobs_[0]->mutable_gpu_diff();
 				CUDA_CHECK(cudaMemset(bias_diff, 0,
 					sizeof(Dtype) * this->blobs_[0]->count()));
 				for (int n = 0; n < num_; ++n) {
@@ -147,7 +147,7 @@ namespace caffe {
 							caffe_gpu_gemm<Dtype>(CblasTrans, CblasNoTrans, K_, N_, M_,
 								(Dtype)1., weight + weight_offset * g,
 								top_diff + top[0]->offset(n) + top_offset * g,
-								(Dtype)0., col_diff + col_offset * g);
+								(Dtype)1., col_diff + col_offset * g);
 						}
 					}
 
@@ -207,7 +207,7 @@ namespace caffe {
 					++pv3;
 				}
 
-				*(q_weight_diff + ((m*cor_size_ + x)*cor_size_ + y)) = rtn;
+				*(q_weight_diff + ((m*cor_size_ + x)*cor_size_ + y)) += rtn;
 
 			}
 	}
@@ -227,10 +227,12 @@ namespace caffe {
 				for (int y = 0; y < cor_size_; ++y) {
 					const Dtype* pv1 = top_diff + (n*num_output_*out_height + h)*out_width + w;
 					const Dtype* pv3 = q_weight + (x*cor_size_ + y);
+					const Dtype* pv4 = q_weight + (y*cor_size_ + x);
 					for (int m = 0; m < num_output_; ++m) {
-						rtn += 2 * (*pv1) * (*pv2) * (*pv3);
+						rtn += (*pv1) * (*pv2) * (*pv3 + *pv4);
 						pv1 += img_offset;
 						pv3 += cor_size_offset;
+						pv4 += cor_size_offset;
 					}
 					pv2 += img_offset;
 				}
