@@ -73,7 +73,7 @@ namespace caffe {
 		// very long time (param_.test_interval() training iterations) to report that
 		// there's not enough memory to run the test net and crash, etc.; and to gauge
 		// the effect of the first training iterations.
-		if (false && param_.test_interval()) {
+		if (param_.test_interval()) {
 			Test();
 		}
 
