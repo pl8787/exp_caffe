@@ -28,12 +28,13 @@ namespace caffe {
 			int cor_size_offset = cor_size_*cor_size_;
 
 			for (int n = 0; n < num_; ++n) {
-				//LOG(INFO) << "Colinear Forward img " << n;
+				LOG(INFO) << "Colinear Forward img " << n;
 				// First, im2col
 				im2col_gpu(bottom_data + bottom[0]->offset(n), channels_, height_,
 					width_, kernel_size_, pad_, stride_, col_data);
 				// Second, add quadratic term
 				if (quadratic_term_) {
+#if 0 // Slow version
 					int n_threads = num_output_*out_height*out_width;
 					CUDA_POST_KERNEL_CHECK;
 					QuadraticActivation<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
@@ -41,6 +42,16 @@ namespace caffe {
 						num_output_, out_height, out_width, cor_size_, 
 						img_offset, top_data);
 					CUDA_POST_KERNEL_CHECK;
+#else // Fast version
+					int n_blocks = num_output_*out_height*out_width;
+					int n_threads = cor_size_ *cor_size_;
+					CUDA_POST_KERNEL_CHECK;
+					QuadraticActivationFast<<<n_blocks, CAFFE_CUDA_NUM_THREADS>>>
+						(n_threads, col_data, q_weight, n, 
+						num_output_, out_height, out_width, cor_size_, 
+						img_offset, top_data);
+					CUDA_POST_KERNEL_CHECK;
+#endif
 
 				}
 				// Third, add linear term
@@ -187,6 +198,66 @@ namespace caffe {
 			}
 
 	}
+
+	template <typename Dtype>
+	__global__ void QuadraticActivationFast(
+		const int nthreads, const Dtype * col_data, const Dtype * q_weight, const int n,
+		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
+		const int img_offset, Dtype * top_data) {
+#define MAX_SHARED_MEM 1<<12-1
+
+			__shared__ Dtype sum_data[MAX_SHARED_MEM]; 
+
+			const int b_idx = blockIdx.x;
+			const int m = b_idx / out_height / out_width;
+			const int h = (b_idx / out_width) % out_height;
+			const int w = b_idx % out_width;
+			const int col_buffer_offset = (h*out_width+w);
+			const int blob2_offset = m*cor_size_*cor_size_;
+
+			CUDA_THREAD_LOOP(index, nthreads) {
+				int x = index / cor_size_;
+				int y = index % cor_size_;
+				
+				const Dtype* pv1 = col_data + col_buffer_offset + x*img_offset;
+				const Dtype* pv2 = q_weight + blob2_offset + x*cor_size_+y;
+				const Dtype* pv3 = col_data + col_buffer_offset + y*img_offset;
+
+				sum_data[(x*cor_size_+y) % MAX_SHARED_MEM] += (*pv1) * (*pv2) * (*pv3);
+			}
+			__syncthreads();
+
+			const int t_idx = threadIdx.x;
+			// reduce to blockDim.x
+			const int len = (nthreads+1)/blockDim.x;
+			for (int i = 0; i < len; ++i) {
+				if (t_idx + i*blockDim.x < nthreads) {
+					sum_data[t_idx] += sum_data[t_idx + i*blockDim.x];
+				}
+				else {
+					break;
+				}
+			}
+			__syncthreads();
+
+			// do reduction in shared mem
+			for (int s=blockDim.x/2; s>0; s/=2)
+			{
+				if (t_idx < s)
+				{
+					sum_data[t_idx] += sum_data[t_idx + s];
+				}
+
+				__syncthreads();
+			}
+
+			// write result for this block to global mem
+			if (t_idx == 0) {
+				*(top_data + (((n*num_output_ + m)*out_height + h)*out_width + w)) = sum_data[0]; 
+			}
+
+	}
+
 
 	template <typename Dtype>
 	__global__ void QuadraticDWeight(const int nthreads, const Dtype * col_data, const Dtype * top_diff, const int n,

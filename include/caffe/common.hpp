@@ -58,6 +58,12 @@ private:\
        i < (n); \
        i += blockDim.x * gridDim.x)
 
+// CUDA: grid stride looping
+#define CUDA_THREAD_LOOP(i, n) \
+  for (int i = threadIdx.x; \
+       i < (n); \
+       i += blockDim.x)
+
 // CUDA: check for error after kernel execution and exit loudly if there is one.
 #define CUDA_POST_KERNEL_CHECK CUDA_CHECK(cudaPeekAtLastError())
 
