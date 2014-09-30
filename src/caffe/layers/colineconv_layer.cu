@@ -8,6 +8,8 @@
 #include "caffe/filler.hpp"
 #include "caffe/util/math_functions.hpp"
 
+#define GPU_FAST_MODE 1
+
 namespace caffe {
 
 	template <typename Dtype>
@@ -28,12 +30,23 @@ namespace caffe {
 			int cor_size_offset = cor_size_*cor_size_;
 
 			for (int n = 0; n < num_; ++n) {
-				//LOG(INFO) << "Colinear Forward img " << n;
+				LOG(INFO) << "Colinear Forward img " << n;
 				// First, im2col
 				im2col_gpu(bottom_data + bottom[0]->offset(n), channels_, height_,
 					width_, kernel_size_, pad_, stride_, col_data);
 				// Second, add quadratic term
 				if (quadratic_term_) {
+
+#if GPU_FAST_MODE  // Fast version
+					int n_blocks = num_output_*out_height*out_width;
+					int n_threads = cor_size_ *cor_size_;
+					CUDA_POST_KERNEL_CHECK;
+					QuadraticActivationFast<<<n_blocks, CAFFE_CUDA_NUM_THREADS>>>
+						(n_threads, col_data, q_weight, n, 
+						num_output_, out_height, out_width, cor_size_, 
+						img_offset, top_data);
+					CUDA_POST_KERNEL_CHECK;
+#else  // Slow version
 					int n_threads = num_output_*out_height*out_width;
 					CUDA_POST_KERNEL_CHECK;
 					QuadraticActivation<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
@@ -41,6 +54,7 @@ namespace caffe {
 						num_output_, out_height, out_width, cor_size_, 
 						img_offset, top_data);
 					CUDA_POST_KERNEL_CHECK;
+#endif
 
 				}
 				// Third, add linear term
@@ -48,7 +62,8 @@ namespace caffe {
 					for (int g = 0; g < group_; ++g) {
 						caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, K_,
 							(Dtype)1., weight + weight_offset * g, col_data + col_offset * g,
-							(Dtype)1., top_data + (*top)[0]->offset(n) + top_offset * g);
+							quadratic_term_?(Dtype)1.:(Dtype)0., 
+							top_data + (*top)[0]->offset(n) + top_offset * g);
 					}
 				}
 				// Fourth, add bias
@@ -110,6 +125,16 @@ namespace caffe {
 					width_, kernel_size_, pad_, stride_, col_data);
 
 				if (quadratic_term_) {
+#if !GPU_FAST_MODE 
+					int n_blocks = num_output_*cor_size_offset;
+					int n_threads = img_offset;
+					CUDA_POST_KERNEL_CHECK;
+					QuadraticDWeightFast<<<n_blocks, CAFFE_CUDA_NUM_THREADS>>>
+						(n_threads, col_data, top_diff, n, 
+						num_output_, out_height, out_width, cor_size_, 
+						img_offset, q_weight_diff);
+					CUDA_POST_KERNEL_CHECK;
+#else
 					int n_threads = num_output_*cor_size_offset;
 					CUDA_POST_KERNEL_CHECK;
 					QuadraticDWeight<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
@@ -117,6 +142,7 @@ namespace caffe {
 						num_output_, out_height, out_width, cor_size_, 
 						img_offset, q_weight_diff);
 					CUDA_POST_KERNEL_CHECK;
+#endif
 				}
 
 				// gradient w.r.t. weight. Note that we will accumulate diffs.
@@ -133,6 +159,16 @@ namespace caffe {
 				// gradient w.r.t. bottom data, if necessary
 				if (propagate_down) {
 					if (quadratic_term_) {
+#if !GPU_FAST_MODE
+						int n_blocks = cor_size_*out_height*out_width;
+						int n_threads = cor_size_*num_output_;
+						CUDA_POST_KERNEL_CHECK;
+						QuadraticErrorFast<<<n_blocks, CAFFE_CUDA_NUM_THREADS>>>
+							(n_threads, col_data, top_diff, q_weight, n, 
+							num_output_, out_height, out_width, cor_size_, 
+							img_offset, cor_size_offset, col_diff);
+						CUDA_POST_KERNEL_CHECK;
+#else
 						int n_threads = cor_size_*out_height*out_width;
 						CUDA_POST_KERNEL_CHECK;
 						QuadraticError<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
@@ -140,6 +176,7 @@ namespace caffe {
 							num_output_, out_height, out_width, cor_size_, 
 							img_offset, cor_size_offset, col_diff);
 						CUDA_POST_KERNEL_CHECK;
+#endif
 					}
 
 					if (linear_term_) {
@@ -147,7 +184,8 @@ namespace caffe {
 							caffe_gpu_gemm<Dtype>(CblasTrans, CblasNoTrans, K_, N_, M_,
 								(Dtype)1., weight + weight_offset * g,
 								top_diff + top[0]->offset(n) + top_offset * g,
-								(Dtype)1., col_diff + col_offset * g);
+								quadratic_term_?(Dtype)1.:(Dtype)0., 
+								col_diff + col_offset * g);
 						}
 					}
 
@@ -187,6 +225,65 @@ namespace caffe {
 	}
 
 	template <typename Dtype>
+	__global__ void QuadraticActivationFast(
+		const int nthreads, const Dtype * col_data, const Dtype * q_weight, const int n,
+		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
+		const int img_offset, Dtype * top_data) {
+
+			__shared__ Dtype sum_data[CAFFE_CUDA_NUM_THREADS]; 
+
+			const int b_idx = blockIdx.x;
+			const int t_idx = threadIdx.x;
+			const int m = b_idx / out_height / out_width;
+			const int h = (b_idx / out_width) % out_height;
+			const int w = b_idx % out_width;
+			const int col_buffer_offset = (h*out_width+w);
+			const int blob2_offset = m*cor_size_*cor_size_;
+
+			sum_data[t_idx] = 0;
+
+			CUDA_THREAD_LOOP(index, nthreads) {
+				int x = index / cor_size_;
+				int y = index % cor_size_;
+				
+				const Dtype* pv1 = col_data + col_buffer_offset + x*img_offset;
+				const Dtype* pv2 = q_weight + blob2_offset + x*cor_size_+y;
+				const Dtype* pv3 = col_data + col_buffer_offset + y*img_offset;
+
+				sum_data[t_idx] += (*pv1) * (*pv2) * (*pv3);//(x*cor_size_+y) % MAX_SHARED_MEM
+			}
+			__syncthreads();
+
+#if 0
+			if (t_idx == 0) {
+				for (int i = 1; i < CAFFE_CUDA_NUM_THREADS; ++i) {
+					sum_data[0] += sum_data[i];
+				}
+				*(top_data + (((n*num_output_ + m)*out_height + h)*out_width + w)) = sum_data[0]; 
+			}
+	
+#else
+			// do reduction in shared mem
+			for (int s=blockDim.x/2; s>0; s/=2)
+			{
+				if (t_idx < s)
+				{
+					sum_data[t_idx] += sum_data[t_idx + s];
+				}
+
+				__syncthreads();
+			}
+
+			// write result for this block to global mem
+			if (t_idx == 0) {
+				*(top_data + (((n*num_output_ + m)*out_height + h)*out_width + w)) = sum_data[0]; 
+			}
+#endif
+
+	}
+
+
+	template <typename Dtype>
 	__global__ void QuadraticDWeight(const int nthreads, const Dtype * col_data, const Dtype * top_diff, const int n,
 		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
 		const int img_offset, Dtype * q_weight_diff) {
@@ -209,6 +306,48 @@ namespace caffe {
 
 				*(q_weight_diff + ((m*cor_size_ + x)*cor_size_ + y)) += rtn;
 
+			}
+	}
+
+	template <typename Dtype>
+	__global__ void QuadraticDWeightFast(const int nthreads, const Dtype * col_data, const Dtype * top_diff, const int n,
+		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
+		const int img_offset, Dtype * q_weight_diff) {
+
+			__shared__ Dtype sum_data[CAFFE_CUDA_NUM_THREADS]; 
+
+			const int b_idx = blockIdx.x;
+			const int t_idx = threadIdx.x;
+			int m = b_idx / cor_size_ / cor_size_;
+			int x = (b_idx / cor_size_) % cor_size_;
+			int y = b_idx % cor_size_;
+
+			sum_data[t_idx] = 0;
+
+			CUDA_THREAD_LOOP(index, nthreads) {
+
+				const Dtype* pv1 = top_diff + (n*num_output_ + m)*img_offset + index;
+				const Dtype* pv2 = col_data + x*img_offset + index;
+				const Dtype* pv3 = col_data + y*img_offset + index;
+
+				sum_data[t_idx] += (*pv1) * (*pv2) * (*pv3);
+			}
+			__syncthreads();
+
+			// do reduction in shared mem
+			for (int s=blockDim.x/2; s>0; s/=2)
+			{
+				if (t_idx < s)
+				{
+					sum_data[t_idx] += sum_data[t_idx + s];
+				}
+
+				__syncthreads();
+			}
+
+			// write result for this block to global mem
+			if (t_idx == 0) {
+				*(q_weight_diff + ((m*cor_size_ + x)*cor_size_ + y)) += sum_data[0];
 			}
 	}
 
@@ -238,6 +377,51 @@ namespace caffe {
 				}
 										
 				*(col_diff + (x*out_height + h)*out_width + w) = rtn;
+			}
+	}
+
+	template <typename Dtype>
+	__global__ void QuadraticErrorFast(const int nthreads, const Dtype * col_data, const Dtype * top_diff, const Dtype * q_weight, const int n,
+		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
+		const int img_offset, const int cor_size_offset, Dtype * col_diff) {
+
+			__shared__ Dtype sum_data[CAFFE_CUDA_NUM_THREADS]; 
+
+			const int b_idx = blockIdx.x;
+			const int t_idx = threadIdx.x;
+			int x = b_idx / out_height / out_width;
+			int h = (b_idx / out_width) % out_height;
+			int w = b_idx % out_width;
+
+			sum_data[t_idx] = 0;
+
+			CUDA_THREAD_LOOP(index, nthreads) {
+				int y = index / num_output_;
+				int m = index % num_output_;
+
+				const Dtype* pv2 = col_data + (h*out_width + w) + y*img_offset;
+				const Dtype* pv1 = top_diff + (n*num_output_*out_height + h)*out_width + w + m*img_offset;
+				const Dtype* pv3 = q_weight + (x*cor_size_ + y) + m*cor_size_offset;
+				const Dtype* pv4 = q_weight + (y*cor_size_ + x) + m*cor_size_offset;
+					
+				sum_data[t_idx] += (*pv1) * (*pv2) * (*pv3 + *pv4);
+			}
+			__syncthreads();
+
+			// do reduction in shared mem
+			for (int s=blockDim.x/2; s>0; s/=2)
+			{
+				if (t_idx < s)
+				{
+					sum_data[t_idx] += sum_data[t_idx + s];
+				}
+
+				__syncthreads();
+			}
+
+			// write result for this block to global mem
+			if (t_idx == 0) {
+				*(col_diff + (x*out_height + h)*out_width + w) = sum_data[0];
 			}
 	}
 

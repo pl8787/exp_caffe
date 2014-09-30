@@ -58,6 +58,12 @@ private:\
        i < (n); \
        i += blockDim.x * gridDim.x)
 
+// CUDA: grid stride looping
+#define CUDA_THREAD_LOOP(i, n) \
+  for (int i = threadIdx.x; \
+       i < (n); \
+       i += blockDim.x)
+
 // CUDA: check for error after kernel execution and exit loudly if there is one.
 #define CUDA_POST_KERNEL_CHECK CUDA_CHECK(cudaPeekAtLastError())
 
@@ -157,10 +163,11 @@ const char* curandGetErrorString(curandStatus_t error);
 // CUDA: thread number configuration.
 // Use 1024 threads per block, which requires cuda sm_2x or above,
 // or fall back to attempt compatibility (best of luck to you).
+
 #if __CUDA_ARCH__ >= 200
-    const int CAFFE_CUDA_NUM_THREADS = 1024;
+    #define CAFFE_CUDA_NUM_THREADS 1024
 #else
-    const int CAFFE_CUDA_NUM_THREADS = 512;
+    #define CAFFE_CUDA_NUM_THREADS 512
 #endif
 
 // CUDA: number of blocks for threads.

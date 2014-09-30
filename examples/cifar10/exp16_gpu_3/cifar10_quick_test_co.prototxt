@@ -17,7 +17,10 @@ layers {
   top: "conv1"
   blobs_lr: 2
   blobs_lr: 1
-  blobs_lr: 1
+  blobs_lr: 0.0001
+  weight_decay: 1
+  weight_decay: 1
+  weight_decay: 1000
   colinear_convolution_param {
     num_output: 16
     pad: 2
@@ -28,7 +31,7 @@ layers {
     bias_term: true
     quadratic_weight_filler{
       type: "gaussian"
-      std: 0.0001
+      std: 0.0000001
     }
     linear_weight_filler {
       type: "gaussian"

@@ -193,9 +193,6 @@
     <ClCompile Include="..\..\src\caffe\layers\colineconv_layer.cpp">
       <Filter>caffe\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\caffe\test\test_convolution_layer.cpp">
-      <Filter>caffe\test</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\caffe\test\test_colinear_convolution_layer.cpp">
       <Filter>caffe\test</Filter>
     </ClCompile>
