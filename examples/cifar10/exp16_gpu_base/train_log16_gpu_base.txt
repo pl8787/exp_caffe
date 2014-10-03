@@ -1,0 +1,801 @@
+
+D:\exp_caffe\examples\cifar10\exp16_gpu_base>set TOOLS=..\..\..\build\tools 
+
+D:\exp_caffe\examples\cifar10\exp16_gpu_base>set GLOG_logtostderr=1 
+
+D:\exp_caffe\examples\cifar10\exp16_gpu_base>..\..\..\build\tools\train_net.exe cifar10_quick_solver.prototxt 
+I0928 11:52:15.336606  4200 train_net.cpp:26] Starting Optimization
+I0928 11:52:15.336606  4200 solver.cpp:41] Creating training net.
+I0928 11:52:15.339531  4200 net.cpp:64] Memory required for Data0
+I0928 11:52:15.339531  4200 net.cpp:75] Creating Layer cifar
+I0928 11:52:15.339531  4200 net.cpp:111] cifar -> data
+I0928 11:52:15.339531  4200 net.cpp:111] cifar -> label
+I0928 11:52:15.339531  4200 data_layer.cpp:145] Opening leveldb ../cifar10-leveldb/cifar-train-leveldb
+I0928 11:52:15.374670  4200 data_layer.cpp:185] output data size: 100,3,32,32
+I0928 11:52:15.374670  4200 data_layer.cpp:204] Loading mean file from../mean.binaryproto
+I0928 11:52:15.375643  4200 data_layer.cpp:225] Initializing prefetch
+I0928 11:52:15.865881  4200 data_layer.cpp:227] Prefetch initialized.
+I0928 11:52:15.865881  4200 net.cpp:126] Top shape: 100 3 32 32 (307200)
+I0928 11:52:15.865881  4200 net.cpp:126] Top shape: 100 1 1 1 (100)
+I0928 11:52:15.865881  4200 net.cpp:134] Memory  required for Data 1229200
+I0928 11:52:15.865881  4200 net.cpp:157] cifar does not need backward computation.
+I0928 11:52:15.865881  4200 net.cpp:75] Creating Layer conv1
+I0928 11:52:15.865881  4200 net.cpp:85] conv1 <- data
+I0928 11:52:15.865881  4200 net.cpp:111] conv1 -> conv1
+I0928 11:52:15.866837  4200 net.cpp:126] Top shape: 100 16 32 32 (1638400)
+I0928 11:52:15.866837  4200 net.cpp:134] Memory  required for Data 7782800
+I0928 11:52:15.866837  4200 net.cpp:152] conv1 needs backward computation.
+I0928 11:52:15.866837  4200 net.cpp:75] Creating Layer pool1
+I0928 11:52:15.866837  4200 net.cpp:85] pool1 <- conv1
+I0928 11:52:15.866837  4200 net.cpp:111] pool1 -> pool1
+I0928 11:52:15.866837  4200 net.cpp:126] Top shape: 100 16 16 16 (409600)
+I0928 11:52:15.866837  4200 net.cpp:134] Memory  required for Data 9421200
+I0928 11:52:15.866837  4200 net.cpp:152] pool1 needs backward computation.
+I0928 11:52:15.866837  4200 net.cpp:75] Creating Layer relu1
+I0928 11:52:15.866837  4200 net.cpp:85] relu1 <- pool1
+I0928 11:52:15.866837  4200 net.cpp:99] relu1 -> pool1 (in-place)
+I0928 11:52:15.866837  4200 net.cpp:126] Top shape: 100 16 16 16 (409600)
+I0928 11:52:15.866837  4200 net.cpp:134] Memory  required for Data 9421200
+I0928 11:52:15.866837  4200 net.cpp:152] relu1 needs backward computation.
+I0928 11:52:15.866837  4200 net.cpp:75] Creating Layer conv2
+I0928 11:52:15.866837  4200 net.cpp:85] conv2 <- pool1
+I0928 11:52:15.866837  4200 net.cpp:111] conv2 -> conv2
+I0928 11:52:15.868790  4200 net.cpp:126] Top shape: 100 32 16 16 (819200)
+I0928 11:52:15.868790  4200 net.cpp:134] Memory  required for Data 12698000
+I0928 11:52:15.868790  4200 net.cpp:152] conv2 needs backward computation.
+I0928 11:52:15.868790  4200 net.cpp:75] Creating Layer relu2
+I0928 11:52:15.868790  4200 net.cpp:85] relu2 <- conv2
+I0928 11:52:15.868790  4200 net.cpp:99] relu2 -> conv2 (in-place)
+I0928 11:52:15.868790  4200 net.cpp:126] Top shape: 100 32 16 16 (819200)
+I0928 11:52:15.868790  4200 net.cpp:134] Memory  required for Data 12698000
+I0928 11:52:15.868790  4200 net.cpp:152] relu2 needs backward computation.
+I0928 11:52:15.868790  4200 net.cpp:75] Creating Layer pool2
+I0928 11:52:15.868790  4200 net.cpp:85] pool2 <- conv2
+I0928 11:52:15.868790  4200 net.cpp:111] pool2 -> pool2
+I0928 11:52:15.868790  4200 net.cpp:126] Top shape: 100 32 8 8 (204800)
+I0928 11:52:15.868790  4200 net.cpp:134] Memory  required for Data 13517200
+I0928 11:52:15.868790  4200 net.cpp:152] pool2 needs backward computation.
+I0928 11:52:15.868790  4200 net.cpp:75] Creating Layer conv3
+I0928 11:52:15.868790  4200 net.cpp:85] conv3 <- pool2
+I0928 11:52:15.868790  4200 net.cpp:111] conv3 -> conv3
+I0928 11:52:15.874670  4200 net.cpp:126] Top shape: 100 64 8 8 (409600)
+I0928 11:52:15.874670  4200 net.cpp:134] Memory  required for Data 15155600
+I0928 11:52:15.874670  4200 net.cpp:152] conv3 needs backward computation.
+I0928 11:52:15.874670  4200 net.cpp:75] Creating Layer relu3
+I0928 11:52:15.874670  4200 net.cpp:85] relu3 <- conv3
+I0928 11:52:15.874670  4200 net.cpp:99] relu3 -> conv3 (in-place)
+I0928 11:52:15.874670  4200 net.cpp:126] Top shape: 100 64 8 8 (409600)
+I0928 11:52:15.874670  4200 net.cpp:134] Memory  required for Data 15155600
+I0928 11:52:15.874670  4200 net.cpp:152] relu3 needs backward computation.
+I0928 11:52:15.874670  4200 net.cpp:75] Creating Layer pool3
+I0928 11:52:15.874670  4200 net.cpp:85] pool3 <- conv3
+I0928 11:52:15.874670  4200 net.cpp:111] pool3 -> pool3
+I0928 11:52:15.874670  4200 net.cpp:126] Top shape: 100 64 4 4 (102400)
+I0928 11:52:15.874670  4200 net.cpp:134] Memory  required for Data 15565200
+I0928 11:52:15.874670  4200 net.cpp:152] pool3 needs backward computation.
+I0928 11:52:15.874670  4200 net.cpp:75] Creating Layer ip1
+I0928 11:52:15.874670  4200 net.cpp:85] ip1 <- pool3
+I0928 11:52:15.874670  4200 net.cpp:111] ip1 -> ip1
+I0928 11:52:15.882483  4200 net.cpp:126] Top shape: 100 64 1 1 (6400)
+I0928 11:52:15.882483  4200 net.cpp:134] Memory  required for Data 15590800
+I0928 11:52:15.882483  4200 net.cpp:152] ip1 needs backward computation.
+I0928 11:52:15.882483  4200 net.cpp:75] Creating Layer ip2
+I0928 11:52:15.882483  4200 net.cpp:85] ip2 <- ip1
+I0928 11:52:15.882483  4200 net.cpp:111] ip2 -> ip2
+I0928 11:52:15.882483  4200 net.cpp:126] Top shape: 100 10 1 1 (1000)
+I0928 11:52:15.882483  4200 net.cpp:134] Memory  required for Data 15594800
+I0928 11:52:15.882483  4200 net.cpp:152] ip2 needs backward computation.
+I0928 11:52:15.882483  4200 net.cpp:75] Creating Layer loss
+I0928 11:52:15.882483  4200 net.cpp:85] loss <- ip2
+I0928 11:52:15.882483  4200 net.cpp:85] loss <- label
+I0928 11:52:15.882483  4200 net.cpp:134] Memory  required for Data 15594800
+I0928 11:52:15.882483  4200 net.cpp:152] loss needs backward computation.
+I0928 11:52:15.882483  4200 net.cpp:181] Collecting Learning Rate and Weight Decay.
+I0928 11:52:15.882483  4200 net.cpp:174] Network initialization done.
+I0928 11:52:15.882483  4200 net.cpp:175] Memory required for Data 15594800
+I0928 11:52:15.883457  4200 solver.cpp:44] Creating testing net.
+I0928 11:52:15.886368  4200 net.cpp:64] Memory required for Data0
+I0928 11:52:15.886368  4200 net.cpp:75] Creating Layer cifar
+I0928 11:52:15.886368  4200 net.cpp:111] cifar -> data
+I0928 11:52:15.886368  4200 net.cpp:111] cifar -> label
+I0928 11:52:15.886368  4200 data_layer.cpp:145] Opening leveldb ../cifar10-leveldb/cifar-test-leveldb
+I0928 11:52:15.925428  4200 data_layer.cpp:185] output data size: 100,3,32,32
+I0928 11:52:15.925428  4200 data_layer.cpp:204] Loading mean file from../mean.binaryproto
+I0928 11:52:15.926404  4200 data_layer.cpp:225] Initializing prefetch
+I0928 11:52:15.926404  4200 data_layer.cpp:227] Prefetch initialized.
+I0928 11:52:15.926404  4200 net.cpp:126] Top shape: 100 3 32 32 (307200)
+I0928 11:52:15.926404  4200 net.cpp:126] Top shape: 100 1 1 1 (100)
+I0928 11:52:15.926404  4200 net.cpp:134] Memory  required for Data 1229200
+I0928 11:52:15.927381  4200 net.cpp:157] cifar does not need backward computation.
+I0928 11:52:15.927381  4200 net.cpp:75] Creating Layer conv1
+I0928 11:52:15.927381  4200 net.cpp:85] conv1 <- data
+I0928 11:52:15.927381  4200 net.cpp:111] conv1 -> conv1
+I0928 11:52:15.927381  4200 net.cpp:126] Top shape: 100 16 32 32 (1638400)
+I0928 11:52:15.927381  4200 net.cpp:134] Memory  required for Data 7782800
+I0928 11:52:15.927381  4200 net.cpp:152] conv1 needs backward computation.
+I0928 11:52:15.927381  4200 net.cpp:75] Creating Layer pool1
+I0928 11:52:15.927381  4200 net.cpp:85] pool1 <- conv1
+I0928 11:52:15.927381  4200 net.cpp:111] pool1 -> pool1
+I0928 11:52:15.927381  4200 net.cpp:126] Top shape: 100 16 16 16 (409600)
+I0928 11:52:15.927381  4200 net.cpp:134] Memory  required for Data 9421200
+I0928 11:52:15.927381  4200 net.cpp:152] pool1 needs backward computation.
+I0928 11:52:15.927381  4200 net.cpp:75] Creating Layer relu1
+I0928 11:52:15.927381  4200 net.cpp:85] relu1 <- pool1
+I0928 11:52:15.927381  4200 net.cpp:99] relu1 -> pool1 (in-place)
+I0928 11:52:15.927381  4200 net.cpp:126] Top shape: 100 16 16 16 (409600)
+I0928 11:52:15.927381  4200 net.cpp:134] Memory  required for Data 9421200
+I0928 11:52:15.927381  4200 net.cpp:152] relu1 needs backward computation.
+I0928 11:52:15.927381  4200 net.cpp:75] Creating Layer conv2
+I0928 11:52:15.927381  4200 net.cpp:85] conv2 <- pool1
+I0928 11:52:15.927381  4200 net.cpp:111] conv2 -> conv2
+I0928 11:52:15.929334  4200 net.cpp:126] Top shape: 100 32 16 16 (819200)
+I0928 11:52:15.929334  4200 net.cpp:134] Memory  required for Data 12698000
+I0928 11:52:15.929334  4200 net.cpp:152] conv2 needs backward computation.
+I0928 11:52:15.929334  4200 net.cpp:75] Creating Layer relu2
+I0928 11:52:15.929334  4200 net.cpp:85] relu2 <- conv2
+I0928 11:52:15.929334  4200 net.cpp:99] relu2 -> conv2 (in-place)
+I0928 11:52:15.929334  4200 net.cpp:126] Top shape: 100 32 16 16 (819200)
+I0928 11:52:15.929334  4200 net.cpp:134] Memory  required for Data 12698000
+I0928 11:52:15.929334  4200 net.cpp:152] relu2 needs backward computation.
+I0928 11:52:15.929334  4200 net.cpp:75] Creating Layer pool2
+I0928 11:52:15.929334  4200 net.cpp:85] pool2 <- conv2
+I0928 11:52:15.929334  4200 net.cpp:111] pool2 -> pool2
+I0928 11:52:15.929334  4200 net.cpp:126] Top shape: 100 32 8 8 (204800)
+I0928 11:52:15.929334  4200 net.cpp:134] Memory  required for Data 13517200
+I0928 11:52:15.929334  4200 net.cpp:152] pool2 needs backward computation.
+I0928 11:52:15.929334  4200 net.cpp:75] Creating Layer conv3
+I0928 11:52:15.929334  4200 net.cpp:85] conv3 <- pool2
+I0928 11:52:15.929334  4200 net.cpp:111] conv3 -> conv3
+I0928 11:52:15.935194  4200 net.cpp:126] Top shape: 100 64 8 8 (409600)
+I0928 11:52:15.935194  4200 net.cpp:134] Memory  required for Data 15155600
+I0928 11:52:15.935194  4200 net.cpp:152] conv3 needs backward computation.
+I0928 11:52:15.935194  4200 net.cpp:75] Creating Layer relu3
+I0928 11:52:15.935194  4200 net.cpp:85] relu3 <- conv3
+I0928 11:52:15.935194  4200 net.cpp:99] relu3 -> conv3 (in-place)
+I0928 11:52:15.935194  4200 net.cpp:126] Top shape: 100 64 8 8 (409600)
+I0928 11:52:15.935194  4200 net.cpp:134] Memory  required for Data 15155600
+I0928 11:52:15.935194  4200 net.cpp:152] relu3 needs backward computation.
+I0928 11:52:15.935194  4200 net.cpp:75] Creating Layer pool3
+I0928 11:52:15.935194  4200 net.cpp:85] pool3 <- conv3
+I0928 11:52:15.935194  4200 net.cpp:111] pool3 -> pool3
+I0928 11:52:15.935194  4200 net.cpp:126] Top shape: 100 64 4 4 (102400)
+I0928 11:52:15.935194  4200 net.cpp:134] Memory  required for Data 15565200
+I0928 11:52:15.935194  4200 net.cpp:152] pool3 needs backward computation.
+I0928 11:52:15.935194  4200 net.cpp:75] Creating Layer ip1
+I0928 11:52:15.935194  4200 net.cpp:85] ip1 <- pool3
+I0928 11:52:15.935194  4200 net.cpp:111] ip1 -> ip1
+I0928 11:52:15.943027  4200 net.cpp:126] Top shape: 100 64 1 1 (6400)
+I0928 11:52:15.943027  4200 net.cpp:134] Memory  required for Data 15590800
+I0928 11:52:15.943027  4200 net.cpp:152] ip1 needs backward computation.
+I0928 11:52:15.943027  4200 net.cpp:75] Creating Layer ip2
+I0928 11:52:15.943027  4200 net.cpp:85] ip2 <- ip1
+I0928 11:52:15.943027  4200 net.cpp:111] ip2 -> ip2
+I0928 11:52:15.943027  4200 net.cpp:126] Top shape: 100 10 1 1 (1000)
+I0928 11:52:15.943027  4200 net.cpp:134] Memory  required for Data 15594800
+I0928 11:52:15.943027  4200 net.cpp:152] ip2 needs backward computation.
+I0928 11:52:15.943027  4200 net.cpp:75] Creating Layer prob
+I0928 11:52:15.943027  4200 net.cpp:85] prob <- ip2
+I0928 11:52:15.943027  4200 net.cpp:111] prob -> prob
+I0928 11:52:15.943027  4200 net.cpp:126] Top shape: 100 10 1 1 (1000)
+I0928 11:52:15.943027  4200 net.cpp:134] Memory  required for Data 15598800
+I0928 11:52:15.943027  4200 net.cpp:152] prob needs backward computation.
+I0928 11:52:15.943027  4200 net.cpp:75] Creating Layer accuracy
+I0928 11:52:15.943027  4200 net.cpp:85] accuracy <- prob
+I0928 11:52:15.943027  4200 net.cpp:85] accuracy <- label
+I0928 11:52:15.943027  4200 net.cpp:111] accuracy -> accuracy
+I0928 11:52:15.943027  4200 net.cpp:126] Top shape: 1 2 1 1 (2)
+I0928 11:52:15.943027  4200 net.cpp:134] Memory  required for Data 15598808
+I0928 11:52:15.943027  4200 net.cpp:152] accuracy needs backward computation.
+I0928 11:52:15.943027  4200 net.cpp:163] This network produces output accuracy
+I0928 11:52:15.944003  4200 net.cpp:181] Collecting Learning Rate and Weight Decay.
+I0928 11:52:15.944003  4200 net.cpp:174] Network initialization done.
+I0928 11:52:15.944003  4200 net.cpp:175] Memory required for Data 15598808
+I0928 11:52:15.944003  4200 solver.cpp:49] Solver scaffolding done.
+I0928 11:52:15.944003  4200 solver.cpp:61] Solving CIFAR10_quick_train
+I0928 11:52:15.944003  4200 solver.cpp:64] PreSolved CIFAR10_quick_train
+I0928 11:52:15.944003  4200 solver.cpp:108] Iteration 0, Testing net
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer cifar
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer conv1
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer pool1
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer relu1
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer conv2
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer relu2
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer pool2
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer conv3
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer relu3
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer pool3
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer ip1
+I0928 11:52:15.944003  4200 net.cpp:288] Copying source layer ip2
+I0928 11:52:15.944003  4200 net.cpp:285] Ignoring source layer loss
+I0928 11:52:33.662078  7704 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 11:52:34.026342  4200 solver.cpp:144] Test score #0: 0.1018
+I0928 11:52:34.026342  4200 solver.cpp:144] Test score #1: 2.30261
+I0928 11:53:28.125910  4200 solver.cpp:241] Iteration 100, lr = 0.001
+I0928 11:53:28.126888  4200 solver.cpp:89] Iteration 100, loss = 1.82213
+I0928 11:54:23.161249  4200 solver.cpp:241] Iteration 200, lr = 0.001
+I0928 11:54:23.161249  4200 solver.cpp:89] Iteration 200, loss = 1.72861
+I0928 11:55:17.171969  4200 solver.cpp:241] Iteration 300, lr = 0.001
+I0928 11:55:17.171969  4200 solver.cpp:89] Iteration 300, loss = 1.28079
+I0928 11:56:11.115288  4200 solver.cpp:241] Iteration 400, lr = 0.001
+I0928 11:56:11.115288  4200 solver.cpp:89] Iteration 400, loss = 1.32322
+I0928 11:57:04.094784 10932 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 11:57:05.085935  4200 solver.cpp:241] Iteration 500, lr = 0.001
+I0928 11:57:05.086911  4200 solver.cpp:89] Iteration 500, loss = 1.46103
+I0928 11:57:05.086911  4200 solver.cpp:108] Iteration 500, Testing net
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer cifar
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer conv1
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer pool1
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer relu1
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer conv2
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer relu2
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer pool2
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer conv3
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer relu3
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer pool3
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer ip1
+I0928 11:57:05.086911  4200 net.cpp:288] Copying source layer ip2
+I0928 11:57:05.086911  4200 net.cpp:285] Ignoring source layer loss
+I0928 11:57:22.520859 10880 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 11:57:22.857741  4200 solver.cpp:144] Test score #0: 0.5275
+I0928 11:57:22.857741  4200 solver.cpp:144] Test score #1: 1.33785
+I0928 11:57:22.857741  4200 net.cpp:349] Serializing 13 layers
+I0928 11:57:22.862624  4200 solver.cpp:161] Snapshotting to cifar10_quick_iter_500
+I0928 11:57:23.758096  4200 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_500.solverstate
+I0928 11:58:17.915297  4200 solver.cpp:241] Iteration 600, lr = 0.001
+I0928 11:58:17.916275  4200 solver.cpp:89] Iteration 600, loss = 1.19875
+I0928 11:59:11.622278  4200 solver.cpp:241] Iteration 700, lr = 0.001
+I0928 11:59:11.622278  4200 solver.cpp:89] Iteration 700, loss = 1.22285
+I0928 12:00:05.362483  4200 solver.cpp:241] Iteration 800, lr = 0.001
+I0928 12:00:05.363481  4200 solver.cpp:89] Iteration 800, loss = 1.0159
+I0928 12:00:58.588059  4200 solver.cpp:241] Iteration 900, lr = 0.001
+I0928 12:00:58.589035  4200 solver.cpp:89] Iteration 900, loss = 0.979109
+I0928 12:01:51.528486 12088 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:01:52.603662  4200 solver.cpp:241] Iteration 1000, lr = 0.001
+I0928 12:01:52.604639  4200 solver.cpp:89] Iteration 1000, loss = 1.20158
+I0928 12:01:52.604639  4200 solver.cpp:108] Iteration 1000, Testing net
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer cifar
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer conv1
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer pool1
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer relu1
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer conv2
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer relu2
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer pool2
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer conv3
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer relu3
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer pool3
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer ip1
+I0928 12:01:52.604639  4200 net.cpp:288] Copying source layer ip2
+I0928 12:01:52.604639  4200 net.cpp:285] Ignoring source layer loss
+I0928 12:02:10.205530 17244 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:02:10.546339  4200 solver.cpp:144] Test score #0: 0.602
+I0928 12:02:10.546339  4200 solver.cpp:144] Test score #1: 1.13673
+I0928 12:02:10.546339  4200 net.cpp:349] Serializing 13 layers
+I0928 12:02:10.550246  4200 solver.cpp:161] Snapshotting to cifar10_quick_iter_1000
+I0928 12:02:11.454530  4200 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_1000.solverstate
+I0928 12:03:06.809906  4200 solver.cpp:241] Iteration 1100, lr = 0.001
+I0928 12:03:06.809906  4200 solver.cpp:89] Iteration 1100, loss = 1.09787
+I0928 12:04:01.781492  4200 solver.cpp:241] Iteration 1200, lr = 0.001
+I0928 12:04:01.781492  4200 solver.cpp:89] Iteration 1200, loss = 0.973561
+I0928 12:04:55.839066  4200 solver.cpp:241] Iteration 1300, lr = 0.001
+I0928 12:04:55.840064  4200 solver.cpp:89] Iteration 1300, loss = 0.707609
+I0928 12:05:50.345688  4200 solver.cpp:241] Iteration 1400, lr = 0.001
+I0928 12:05:50.346665  4200 solver.cpp:89] Iteration 1400, loss = 0.845566
+I0928 12:06:44.351524 18184 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:06:45.322190  4200 solver.cpp:241] Iteration 1500, lr = 0.001
+I0928 12:06:45.323168  4200 solver.cpp:89] Iteration 1500, loss = 1.01919
+I0928 12:06:45.323168  4200 solver.cpp:108] Iteration 1500, Testing net
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer cifar
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer conv1
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer pool1
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer relu1
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer conv2
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer relu2
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer pool2
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer conv3
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer relu3
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer pool3
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer ip1
+I0928 12:06:45.323168  4200 net.cpp:288] Copying source layer ip2
+I0928 12:06:45.323168  4200 net.cpp:285] Ignoring source layer loss
+I0928 12:07:02.455348  9072 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:07:02.792249  4200 solver.cpp:144] Test score #0: 0.66
+I0928 12:07:02.793226  4200 solver.cpp:144] Test score #1: 0.985548
+I0928 12:07:02.793226  4200 net.cpp:349] Serializing 13 layers
+I0928 12:07:02.796154  4200 solver.cpp:161] Snapshotting to cifar10_quick_iter_1500
+I0928 12:07:03.670146  4200 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_1500.solverstate
+I0928 12:07:57.193562  4200 solver.cpp:241] Iteration 1600, lr = 0.001
+I0928 12:07:57.194555  4200 solver.cpp:89] Iteration 1600, loss = 1.06939
+I0928 12:08:49.908411  4200 solver.cpp:241] Iteration 1700, lr = 0.001
+I0928 12:08:49.909387  4200 solver.cpp:89] Iteration 1700, loss = 0.941327
+I0928 12:09:42.626216  4200 solver.cpp:241] Iteration 1800, lr = 0.001
+I0928 12:09:42.627190  4200 solver.cpp:89] Iteration 1800, loss = 0.599764
+I0928 12:10:35.218000  4200 solver.cpp:241] Iteration 1900, lr = 0.001
+I0928 12:10:35.218000  4200 solver.cpp:89] Iteration 1900, loss = 0.827956
+I0928 12:11:26.866485 18632 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:11:27.837152  4200 solver.cpp:241] Iteration 2000, lr = 0.001
+I0928 12:11:27.838129  4200 solver.cpp:89] Iteration 2000, loss = 0.849199
+I0928 12:11:27.838129  4200 solver.cpp:108] Iteration 2000, Testing net
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer cifar
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer conv1
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer pool1
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer relu1
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer conv2
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer relu2
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer pool2
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer conv3
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer relu3
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer pool3
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer ip1
+I0928 12:11:27.838129  4200 net.cpp:288] Copying source layer ip2
+I0928 12:11:27.838129  4200 net.cpp:285] Ignoring source layer loss
+I0928 12:11:45.005502 11228 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:11:45.361896  4200 solver.cpp:144] Test score #0: 0.6803
+I0928 12:11:45.361896  4200 solver.cpp:144] Test score #1: 0.946048
+I0928 12:11:45.361896  4200 net.cpp:349] Serializing 13 layers
+I0928 12:11:45.364827  4200 solver.cpp:161] Snapshotting to cifar10_quick_iter_2000
+I0928 12:11:46.189034  4200 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_2000.solverstate
+I0928 12:12:39.712430  4200 solver.cpp:241] Iteration 2100, lr = 0.001
+I0928 12:12:39.712430  4200 solver.cpp:89] Iteration 2100, loss = 0.993407
+I0928 12:13:32.613797  4200 solver.cpp:241] Iteration 2200, lr = 0.001
+I0928 12:13:32.613797  4200 solver.cpp:89] Iteration 2200, loss = 0.902248
+I0928 12:14:25.303261  4200 solver.cpp:241] Iteration 2300, lr = 0.001
+I0928 12:14:25.303261  4200 solver.cpp:89] Iteration 2300, loss = 0.594171
+I0928 12:15:17.933152  4200 solver.cpp:241] Iteration 2400, lr = 0.001
+I0928 12:15:17.933152  4200 solver.cpp:89] Iteration 2400, loss = 0.799321
+I0928 12:16:09.818931 17896 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:16:10.816941  4200 solver.cpp:241] Iteration 2500, lr = 0.001
+I0928 12:16:10.816941  4200 solver.cpp:89] Iteration 2500, loss = 0.755203
+I0928 12:16:10.816941  4200 solver.cpp:108] Iteration 2500, Testing net
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer cifar
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer conv1
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer pool1
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer relu1
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer conv2
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer relu2
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer pool2
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer conv3
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer relu3
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer pool3
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer ip1
+I0928 12:16:10.816941  4200 net.cpp:288] Copying source layer ip2
+I0928 12:16:10.816941  4200 net.cpp:285] Ignoring source layer loss
+I0928 12:16:27.960840 18688 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:16:28.297761  4200 solver.cpp:144] Test score #0: 0.6933
+I0928 12:16:28.297761  4200 solver.cpp:144] Test score #1: 0.909216
+I0928 12:16:28.297761  4200 net.cpp:349] Serializing 13 layers
+I0928 12:16:28.302625  4200 solver.cpp:161] Snapshotting to cifar10_quick_iter_2500
+I0928 12:16:29.171756  4200 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_2500.solverstate
+I0928 12:17:22.714680  4200 solver.cpp:241] Iteration 2600, lr = 0.001
+I0928 12:17:22.714680  4200 solver.cpp:89] Iteration 2600, loss = 0.918326
+I0928 12:18:15.494956  4200 solver.cpp:241] Iteration 2700, lr = 0.001
+I0928 12:18:15.495954  4200 solver.cpp:89] Iteration 2700, loss = 0.891698
+I0928 12:19:08.440268  4200 solver.cpp:241] Iteration 2800, lr = 0.001
+I0928 12:19:08.440268  4200 solver.cpp:89] Iteration 2800, loss = 0.589311
+I0928 12:20:01.181504  4200 solver.cpp:241] Iteration 2900, lr = 0.001
+I0928 12:20:01.182482  4200 solver.cpp:89] Iteration 2900, loss = 0.788395
+I0928 12:20:52.891489 11956 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:20:53.873877  4200 solver.cpp:241] Iteration 3000, lr = 0.001
+I0928 12:20:53.873877  4200 solver.cpp:89] Iteration 3000, loss = 0.720835
+I0928 12:20:53.873877  4200 solver.cpp:108] Iteration 3000, Testing net
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer cifar
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer conv1
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer pool1
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer relu1
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer conv2
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer relu2
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer pool2
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer conv3
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer relu3
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer pool3
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer ip1
+I0928 12:20:53.873877  4200 net.cpp:288] Copying source layer ip2
+I0928 12:20:53.873877  4200 net.cpp:285] Ignoring source layer loss
+I0928 12:21:11.011914  4720 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:21:11.348817  4200 solver.cpp:144] Test score #0: 0.6987
+I0928 12:21:11.348817  4200 solver.cpp:144] Test score #1: 0.886945
+I0928 12:21:11.348817  4200 net.cpp:349] Serializing 13 layers
+I0928 12:21:11.352725  4200 solver.cpp:161] Snapshotting to cifar10_quick_iter_3000
+I0928 12:21:12.162284  4200 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_3000.solverstate
+I0928 12:22:05.600740  4200 solver.cpp:241] Iteration 3100, lr = 0.001
+I0928 12:22:05.600740  4200 solver.cpp:89] Iteration 3100, loss = 0.849541
+I0928 12:22:58.476719  4200 solver.cpp:241] Iteration 3200, lr = 0.001
+I0928 12:22:58.477695  4200 solver.cpp:89] Iteration 3200, loss = 0.856548
+I0928 12:23:51.364393  4200 solver.cpp:241] Iteration 3300, lr = 0.001
+I0928 12:23:51.364393  4200 solver.cpp:89] Iteration 3300, loss = 0.585813
+I0928 12:24:44.156394  4200 solver.cpp:241] Iteration 3400, lr = 0.001
+I0928 12:24:44.157367  4200 solver.cpp:89] Iteration 3400, loss = 0.757265
+I0928 12:25:35.972838  4032 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:25:36.961103  4200 solver.cpp:241] Iteration 3500, lr = 0.001
+I0928 12:25:36.961103  4200 solver.cpp:89] Iteration 3500, loss = 0.718923
+I0928 12:25:36.961103  4200 solver.cpp:108] Iteration 3500, Testing net
+I0928 12:25:36.961103  4200 net.cpp:288] Copying source layer cifar
+I0928 12:25:36.961103  4200 net.cpp:288] Copying source layer conv1
+I0928 12:25:36.961103  4200 net.cpp:288] Copying source layer pool1
+I0928 12:25:36.961103  4200 net.cpp:288] Copying source layer relu1
+I0928 12:25:36.961103  4200 net.cpp:288] Copying source layer conv2
+I0928 12:25:36.961103  4200 net.cpp:288] Copying source layer relu2
+I0928 12:25:36.961103  4200 net.cpp:288output need close!
+filename: cifar10_quick_iter_500_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_500.solverstate_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_1000_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_1000.solverstate_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_1500_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_1500.solverstate_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_2000_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_2000.solverstate_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_2500_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_2500.solverstate_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_3000_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_3000.solverstate_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_3500_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_3500.solverstate_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_4000_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_4000.solverstate_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_4000_t, fd: -1
+output need close!
+filename: cifar10_quick_iter_4000.solverstate_t, fd: -1
+] Copying source layer pool2
+I0928 12:25:36.962082  4200 net.cpp:288] Copying source layer conv3
+I0928 12:25:36.962082  4200 net.cpp:288] Copying source layer relu3
+I0928 12:25:36.962082  4200 net.cpp:288] Copying source layer pool3
+I0928 12:25:36.962082  4200 net.cpp:288] Copying source layer ip1
+I0928 12:25:36.962082  4200 net.cpp:288] Copying source layer ip2
+I0928 12:25:36.962082  4200 net.cpp:285] Ignoring source layer loss
+I0928 12:25:54.083500 16760 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:25:54.419421  4200 solver.cpp:144] Test score #0: 0.7036
+I0928 12:25:54.420398  4200 solver.cpp:144] Test score #1: 0.883422
+I0928 12:25:54.420398  4200 net.cpp:349] Serializing 13 layers
+I0928 12:25:54.424305  4200 solver.cpp:161] Snapshotting to cifar10_quick_iter_3500
+I0928 12:25:55.236778  4200 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_3500.solverstate
+I0928 12:26:48.941843  4200 solver.cpp:241] Iteration 3600, lr = 0.001
+I0928 12:26:48.941843  4200 solver.cpp:89] Iteration 3600, loss = 0.769879
+I0928 12:27:41.611754  4200 solver.cpp:241] Iteration 3700, lr = 0.001
+I0928 12:27:41.612730  4200 solver.cpp:89] Iteration 3700, loss = 0.808627
+I0928 12:28:34.270944  4200 solver.cpp:241] Iteration 3800, lr = 0.001
+I0928 12:28:34.270944  4200 solver.cpp:89] Iteration 3800, loss = 0.569256
+I0928 12:29:27.015091  4200 solver.cpp:241] Iteration 3900, lr = 0.001
+I0928 12:29:27.015091  4200 solver.cpp:89] Iteration 3900, loss = 0.693325
+I0928 12:30:18.828609 15892 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:30:19.821735  4200 solver.cpp:241] Iteration 4000, lr = 0.001
+I0928 12:30:19.822732  4200 solver.cpp:89] Iteration 4000, loss = 0.663145
+I0928 12:30:19.822732  4200 solver.cpp:108] Iteration 4000, Testing net
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer cifar
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer conv1
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer pool1
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer relu1
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer conv2
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer relu2
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer pool2
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer conv3
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer relu3
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer pool3
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer ip1
+I0928 12:30:19.822732  4200 net.cpp:288] Copying source layer ip2
+I0928 12:30:19.822732  4200 net.cpp:285] Ignoring source layer loss
+I0928 12:30:36.949033  5052 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:30:37.284957  4200 solver.cpp:144] Test score #0: 0.7084
+I0928 12:30:37.284957  4200 solver.cpp:144] Test score #1: 0.870391
+I0928 12:30:37.284957  4200 net.cpp:349] Serializing 13 layers
+I0928 12:30:37.288866  4200 solver.cpp:161] Snapshotting to cifar10_quick_iter_4000
+I0928 12:30:38.115981  4200 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_4000.solverstate
+I0928 12:30:38.999737  4200 net.cpp:349] Serializing 13 layers
+I0928 12:30:39.002666  4200 solver.cpp:161] Snapshotting to cifar10_quick_iter_4000
+I0928 12:30:39.020244  4200 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_4000.solverstate
+I0928 12:30:39.034894  4200 solver.cpp:102] Optimization Done.
+I0928 12:30:39.034894  4200 train_net.cpp:34] Optimization Done.
+
+D:\exp_caffe\examples\cifar10\exp16_gpu_base>#reduce learning rate by fctor of 10 after 8 epochs 
+'#reduce' is not recognized as an internal or external command,
+operable program or batch file.
+
+D:\exp_caffe\examples\cifar10\exp16_gpu_base>..\..\..\build\tools\train_net.exe cifar10_quick_solver_lr1.prototxt cifar10_quick_iter_4000.solverstate 
+I0928 12:30:39.168678 19360 train_net.cpp:26] Starting Optimization
+I0928 12:30:39.168678 19360 solver.cpp:41] Creating training net.
+I0928 12:30:39.171607 19360 net.cpp:64] Memory required for Data0
+I0928 12:30:39.171607 19360 net.cpp:75] Creating Layer cifar
+I0928 12:30:39.171607 19360 net.cpp:111] cifar -> data
+I0928 12:30:39.171607 19360 net.cpp:111] cifar -> label
+I0928 12:30:39.172582 19360 data_layer.cpp:145] Opening leveldb ../cifar10-leveldb/cifar-train-leveldb
+I0928 12:30:39.203835 19360 data_layer.cpp:185] output data size: 100,3,32,32
+I0928 12:30:39.203835 19360 data_layer.cpp:204] Loading mean file from../mean.binaryproto
+I0928 12:30:39.204810 19360 data_layer.cpp:225] Initializing prefetch
+I0928 12:30:39.519250 19360 data_layer.cpp:227] Prefetch initialized.
+I0928 12:30:39.519250 19360 net.cpp:126] Top shape: 100 3 32 32 (307200)
+I0928 12:30:39.519250 19360 net.cpp:126] Top shape: 100 1 1 1 (100)
+I0928 12:30:39.519250 19360 net.cpp:134] Memory  required for Data 1229200
+I0928 12:30:39.519250 19360 net.cpp:157] cifar does not need backward computation.
+I0928 12:30:39.519250 19360 net.cpp:75] Creating Layer conv1
+I0928 12:30:39.519250 19360 net.cpp:85] conv1 <- data
+I0928 12:30:39.519250 19360 net.cpp:111] conv1 -> conv1
+I0928 12:30:39.519250 19360 net.cpp:126] Top shape: 100 16 32 32 (1638400)
+I0928 12:30:39.519250 19360 net.cpp:134] Memory  required for Data 7782800
+I0928 12:30:39.519250 19360 net.cpp:152] conv1 needs backward computation.
+I0928 12:30:39.519250 19360 net.cpp:75] Creating Layer pool1
+I0928 12:30:39.519250 19360 net.cpp:85] pool1 <- conv1
+I0928 12:30:39.519250 19360 net.cpp:111] pool1 -> pool1
+I0928 12:30:39.519250 19360 net.cpp:126] Top shape: 100 16 16 16 (409600)
+I0928 12:30:39.519250 19360 net.cpp:134] Memory  required for Data 9421200
+I0928 12:30:39.519250 19360 net.cpp:152] pool1 needs backward computation.
+I0928 12:30:39.519250 19360 net.cpp:75] Creating Layer relu1
+I0928 12:30:39.519250 19360 net.cpp:85] relu1 <- pool1
+I0928 12:30:39.519250 19360 net.cpp:99] relu1 -> pool1 (in-place)
+I0928 12:30:39.519250 19360 net.cpp:126] Top shape: 100 16 16 16 (409600)
+I0928 12:30:39.519250 19360 net.cpp:134] Memory  required for Data 9421200
+I0928 12:30:39.519250 19360 net.cpp:152] relu1 needs backward computation.
+I0928 12:30:39.519250 19360 net.cpp:75] Creating Layer conv2
+I0928 12:30:39.519250 19360 net.cpp:85] conv2 <- pool1
+I0928 12:30:39.519250 19360 net.cpp:111] conv2 -> conv2
+I0928 12:30:39.521222 19360 net.cpp:126] Top shape: 100 32 16 16 (819200)
+I0928 12:30:39.521222 19360 net.cpp:134] Memory  required for Data 12698000
+I0928 12:30:39.521222 19360 net.cpp:152] conv2 needs backward computation.
+I0928 12:30:39.521222 19360 net.cpp:75] Creating Layer relu2
+I0928 12:30:39.521222 19360 net.cpp:85] relu2 <- conv2
+I0928 12:30:39.521222 19360 net.cpp:99] relu2 -> conv2 (in-place)
+I0928 12:30:39.521222 19360 net.cpp:126] Top shape: 100 32 16 16 (819200)
+I0928 12:30:39.521222 19360 net.cpp:134] Memory  required for Data 12698000
+I0928 12:30:39.521222 19360 net.cpp:152] relu2 needs backward computation.
+I0928 12:30:39.521222 19360 net.cpp:75] Creating Layer pool2
+I0928 12:30:39.521222 19360 net.cpp:85] pool2 <- conv2
+I0928 12:30:39.521222 19360 net.cpp:111] pool2 -> pool2
+I0928 12:30:39.521222 19360 net.cpp:126] Top shape: 100 32 8 8 (204800)
+I0928 12:30:39.521222 19360 net.cpp:134] Memory  required for Data 13517200
+I0928 12:30:39.521222 19360 net.cpp:152] pool2 needs backward computation.
+I0928 12:30:39.521222 19360 net.cpp:75] Creating Layer conv3
+I0928 12:30:39.521222 19360 net.cpp:85] conv3 <- pool2
+I0928 12:30:39.521222 19360 net.cpp:111] conv3 -> conv3
+I0928 12:30:39.527083 19360 net.cpp:126] Top shape: 100 64 8 8 (409600)
+I0928 12:30:39.527083 19360 net.cpp:134] Memory  required for Data 15155600
+I0928 12:30:39.527083 19360 net.cpp:152] conv3 needs backward computation.
+I0928 12:30:39.527083 19360 net.cpp:75] Creating Layer relu3
+I0928 12:30:39.527083 19360 net.cpp:85] relu3 <- conv3
+I0928 12:30:39.527083 19360 net.cpp:99] relu3 -> conv3 (in-place)
+I0928 12:30:39.527083 19360 net.cpp:126] Top shape: 100 64 8 8 (409600)
+I0928 12:30:39.527083 19360 net.cpp:134] Memory  required for Data 15155600
+I0928 12:30:39.527083 19360 net.cpp:152] relu3 needs backward computation.
+I0928 12:30:39.527083 19360 net.cpp:75] Creating Layer pool3
+I0928 12:30:39.527083 19360 net.cpp:85] pool3 <- conv3
+I0928 12:30:39.527083 19360 net.cpp:111] pool3 -> pool3
+I0928 12:30:39.527083 19360 net.cpp:126] Top shape: 100 64 4 4 (102400)
+I0928 12:30:39.527083 19360 net.cpp:134] Memory  required for Data 15565200
+I0928 12:30:39.527083 19360 net.cpp:152] pool3 needs backward computation.
+I0928 12:30:39.527083 19360 net.cpp:75] Creating Layer ip1
+I0928 12:30:39.527083 19360 net.cpp:85] ip1 <- pool3
+I0928 12:30:39.527083 19360 net.cpp:111] ip1 -> ip1
+I0928 12:30:39.534898 19360 net.cpp:126] Top shape: 100 64 1 1 (6400)
+I0928 12:30:39.534898 19360 net.cpp:134] Memory  required for Data 15590800
+I0928 12:30:39.534898 19360 net.cpp:152] ip1 needs backward computation.
+I0928 12:30:39.534898 19360 net.cpp:75] Creating Layer ip2
+I0928 12:30:39.534898 19360 net.cpp:85] ip2 <- ip1
+I0928 12:30:39.534898 19360 net.cpp:111] ip2 -> ip2
+I0928 12:30:39.534898 19360 net.cpp:126] Top shape: 100 10 1 1 (1000)
+I0928 12:30:39.534898 19360 net.cpp:134] Memory  required for Data 15594800
+I0928 12:30:39.534898 19360 net.cpp:152] ip2 needs backward computation.
+I0928 12:30:39.534898 19360 net.cpp:75] Creating Layer loss
+I0928 12:30:39.534898 19360 net.cpp:85] loss <- ip2
+I0928 12:30:39.534898 19360 net.cpp:85] loss <- label
+I0928 12:30:39.534898 19360 net.cpp:134] Memory  required for Data 15594800
+I0928 12:30:39.534898 19360 net.cpp:152] loss needs backward computation.
+I0928 12:30:39.534898 19360 net.cpp:181] Collecting Learning Rate and Weight Decay.
+I0928 12:30:39.534898 19360 net.cpp:174] Network initialization done.
+I0928 12:30:39.534898 19360 net.cpp:175] Memory required for Data 15594800
+I0928 12:30:39.535853 19360 solver.cpp:44] Creating testing net.
+I0928 12:30:39.538801 19360 net.cpp:64] Memory required for Data0
+I0928 12:30:39.538801 19360 net.cpp:75] Creating Layer cifar
+I0928 12:30:39.538801 19360 net.cpp:111] cifar -> data
+I0928 12:30:39.538801 19360 net.cpp:111] cifar -> label
+I0928 12:30:39.538801 19360 data_layer.cpp:145] Opening leveldb ../cifar10-leveldb/cifar-test-leveldb
+I0928 12:30:39.546592 19360 data_layer.cpp:185] output data size: 100,3,32,32
+I0928 12:30:39.546592 19360 data_layer.cpp:204] Loading mean file from../mean.binaryproto
+I0928 12:30:39.547569 19360 data_layer.cpp:225] Initializing prefetch
+I0928 12:30:39.547569 19360 data_layer.cpp:227] Prefetch initialized.
+I0928 12:30:39.547569 19360 net.cpp:126] Top shape: 100 3 32 32 (307200)
+I0928 12:30:39.547569 19360 net.cpp:126] Top shape: 100 1 1 1 (100)
+I0928 12:30:39.547569 19360 net.cpp:134] Memory  required for Data 1229200
+I0928 12:30:39.547569 19360 net.cpp:157] cifar does not need backward computation.
+I0928 12:30:39.547569 19360 net.cpp:75] Creating Layer conv1
+I0928 12:30:39.547569 19360 net.cpp:85] conv1 <- data
+I0928 12:30:39.547569 19360 net.cpp:111] conv1 -> conv1
+I0928 12:30:39.547569 19360 net.cpp:126] Top shape: 100 16 32 32 (1638400)
+I0928 12:30:39.547569 19360 net.cpp:134] Memory  required for Data 7782800
+I0928 12:30:39.547569 19360 net.cpp:152] conv1 needs backward computation.
+I0928 12:30:39.547569 19360 net.cpp:75] Creating Layer pool1
+I0928 12:30:39.547569 19360 net.cpp:85] pool1 <- conv1
+I0928 12:30:39.547569 19360 net.cpp:111] pool1 -> pool1
+I0928 12:30:39.547569 19360 net.cpp:126] Top shape: 100 16 16 16 (409600)
+I0928 12:30:39.547569 19360 net.cpp:134] Memory  required for Data 9421200
+I0928 12:30:39.547569 19360 net.cpp:152] pool1 needs backward computation.
+I0928 12:30:39.547569 19360 net.cpp:75] Creating Layer relu1
+I0928 12:30:39.547569 19360 net.cpp:85] relu1 <- pool1
+I0928 12:30:39.547569 19360 net.cpp:99] relu1 -> pool1 (in-place)
+I0928 12:30:39.547569 19360 net.cpp:126] Top shape: 100 16 16 16 (409600)
+I0928 12:30:39.548545 19360 net.cpp:134] Memory  required for Data 9421200
+I0928 12:30:39.548545 19360 net.cpp:152] relu1 needs backward computation.
+I0928 12:30:39.548545 19360 net.cpp:75] Creating Layer conv2
+I0928 12:30:39.548545 19360 net.cpp:85] conv2 <- pool1
+I0928 12:30:39.548545 19360 net.cpp:111] conv2 -> conv2
+I0928 12:30:39.549522 19360 net.cpp:126] Top shape: 100 32 16 16 (819200)
+I0928 12:30:39.549522 19360 net.cpp:134] Memory  required for Data 12698000
+I0928 12:30:39.549522 19360 net.cpp:152] conv2 needs backward computation.
+I0928 12:30:39.549522 19360 net.cpp:75] Creating Layer relu2
+I0928 12:30:39.549522 19360 net.cpp:85] relu2 <- conv2
+I0928 12:30:39.549522 19360 net.cpp:99] relu2 -> conv2 (in-place)
+I0928 12:30:39.549522 19360 net.cpp:126] Top shape: 100 32 16 16 (819200)
+I0928 12:30:39.549522 19360 net.cpp:134] Memory  required for Data 12698000
+I0928 12:30:39.549522 19360 net.cpp:152] relu2 needs backward computation.
+I0928 12:30:39.549522 19360 net.cpp:75] Creating Layer pool2
+I0928 12:30:39.549522 19360 net.cpp:85] pool2 <- conv2
+I0928 12:30:39.549522 19360 net.cpp:111] pool2 -> pool2
+I0928 12:30:39.550498 19360 net.cpp:126] Top shape: 100 32 8 8 (204800)
+I0928 12:30:39.550498 19360 net.cpp:134] Memory  required for Data 13517200
+I0928 12:30:39.550498 19360 net.cpp:152] pool2 needs backward computation.
+I0928 12:30:39.550498 19360 net.cpp:75] Creating Layer conv3
+I0928 12:30:39.550498 19360 net.cpp:85] conv3 <- pool2
+I0928 12:30:39.550498 19360 net.cpp:111] conv3 -> conv3
+I0928 12:30:39.555380 19360 net.cpp:126] Top shape: 100 64 8 8 (409600)
+I0928 12:30:39.555380 19360 net.cpp:134] Memory  required for Data 15155600
+I0928 12:30:39.556357 19360 net.cpp:152] conv3 needs backward computation.
+I0928 12:30:39.556357 19360 net.cpp:75] Creating Layer relu3
+I0928 12:30:39.556357 19360 net.cpp:85] relu3 <- conv3
+I0928 12:30:39.556357 19360 net.cpp:99] relu3 -> conv3 (in-place)
+I0928 12:30:39.556357 19360 net.cpp:126] Top shape: 100 64 8 8 (409600)
+I0928 12:30:39.556357 19360 net.cpp:134] Memory  required for Data 15155600
+I0928 12:30:39.556357 19360 net.cpp:152] relu3 needs backward computation.
+I0928 12:30:39.556357 19360 net.cpp:75] Creating Layer pool3
+I0928 12:30:39.556357 19360 net.cpp:85] pool3 <- conv3
+I0928 12:30:39.556357 19360 net.cpp:111] pool3 -> pool3
+I0928 12:30:39.556357 19360 net.cpp:126] Top shape: 100 64 4 4 (102400)
+I0928 12:30:39.556357 19360 net.cpp:134] Memory  required for Data 15565200
+I0928 12:30:39.556357 19360 net.cpp:152] pool3 needs backward computation.
+I0928 12:30:39.556357 19360 net.cpp:75] Creating Layer ip1
+I0928 12:30:39.556357 19360 net.cpp:85] ip1 <- pool3
+I0928 12:30:39.556357 19360 net.cpp:111] ip1 -> ip1
+I0928 12:30:39.563192 19360 net.cpp:126] Top shape: 100 64 1 1 (6400)
+I0928 12:30:39.563192 19360 net.cpp:134] Memory  required for Data 15590800
+I0928 12:30:39.563192 19360 net.cpp:152] ip1 needs backward computation.
+I0928 12:30:39.563192 19360 net.cpp:75] Creating Layer ip2
+I0928 12:30:39.563192 19360 net.cpp:85] ip2 <- ip1
+I0928 12:30:39.563192 19360 net.cpp:111] ip2 -> ip2
+I0928 12:30:39.563192 19360 net.cpp:126] Top shape: 100 10 1 1 (1000)
+I0928 12:30:39.563192 19360 net.cpp:134] Memory  required for Data 15594800
+I0928 12:30:39.563192 19360 net.cpp:152] ip2 needs backward computation.
+I0928 12:30:39.563192 19360 net.cpp:75] Creating Layer prob
+I0928 12:30:39.563192 19360 net.cpp:85] prob <- ip2
+I0928 12:30:39.563192 19360 net.cpp:111] prob -> prob
+I0928 12:30:39.564170 19360 net.cpp:126] Top shape: 100 10 1 1 (1000)
+I0928 12:30:39.564170 19360 net.cpp:134] Memory  required for Data 15598800
+I0928 12:30:39.564170 19360 net.cpp:152] prob needs backward computation.
+I0928 12:30:39.564170 19360 net.cpp:75] Creating Layer accuracy
+I0928 12:30:39.564170 19360 net.cpp:85] accuracy <- prob
+I0928 12:30:39.564170 19360 net.cpp:85] accuracy <- label
+I0928 12:30:39.564170 19360 net.cpp:111] accuracy -> accuracy
+I0928 12:30:39.564170 19360 net.cpp:126] Top shape: 1 2 1 1 (2)
+I0928 12:30:39.564170 19360 net.cpp:134] Memory  required for Data 15598808
+I0928 12:30:39.564170 19360 net.cpp:152] accuracy needs backward computation.
+I0928 12:30:39.564170 19360 net.cpp:163] This network produces output accuracy
+I0928 12:30:39.564170 19360 net.cpp:181] Collecting Learning Rate and Weight Decay.
+I0928 12:30:39.564170 19360 net.cpp:174] Network initialization done.
+I0928 12:30:39.564170 19360 net.cpp:175] Memory required for Data 15598808
+I0928 12:30:39.564170 19360 solver.cpp:49] Solver scaffolding done.
+I0928 12:30:39.564170 19360 train_net.cpp:29] Resuming from cifar10_quick_iter_4000.solverstate
+I0928 12:30:39.564170 19360 solver.cpp:61] Solving CIFAR10_quick_train
+I0928 12:30:39.564170 19360 solver.cpp:64] PreSolved CIFAR10_quick_train
+I0928 12:30:39.564170 19360 solver.cpp:68] Restoring previous solver status from cifar10_quick_iter_4000.solverstate
+I0928 12:30:39.590535 19360 net.cpp:319] Copying source layer cifar
+I0928 12:30:39.590535 19360 net.cpp:319] Copying source layer conv1
+I0928 12:30:39.590535 19360 net.cpp:319] Copying source layer pool1
+I0928 12:30:39.590535 19360 net.cpp:319] Copying source layer relu1
+I0928 12:30:39.590535 19360 net.cpp:319] Copying source layer conv2
+I0928 12:30:39.591512 19360 net.cpp:319] Copying source layer relu2
+I0928 12:30:39.591512 19360 net.cpp:319] Copying source layer pool2
+I0928 12:30:39.591512 19360 net.cpp:319] Copying source layer conv3
+I0928 12:30:39.592489 19360 net.cpp:319] Copying source layer relu3
+I0928 12:30:39.592489 19360 net.cpp:319] Copying source layer pool3
+I0928 12:30:39.592489 19360 net.cpp:319] Copying source layer ip1
+I0928 12:30:39.594442 19360 net.cpp:319] Copying source layer ip2
+I0928 12:30:39.594442 19360 net.cpp:319] Copying source layer loss
+I0928 12:30:39.594442 19360 solver.cpp:307] SGDSolver: restoring history
+I0928 12:30:39.599324 19360 solver.cpp:108] Iteration 4000, Testing net
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer cifar
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer conv1
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer pool1
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer relu1
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer conv2
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer relu2
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer pool2
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer conv3
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer relu3
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer pool3
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer ip1
+I0928 12:30:39.599324 19360 net.cpp:288] Copying source layer ip2
+I0928 12:30:39.600301 19360 net.cpp:285] Ignoring source layer loss
+I0928 12:31:34.457651  8424 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:31:35.604095 19360 solver.cpp:144] Test score #0: 0.7084
+I0928 12:31:35.604095 19360 solver.cpp:144] Test score #1: 0.870391
+I0928 12:34:02.185596 19360 solver.cpp:241] Iteration 4100, lr = 0.0001
+I0928 12:34:02.186573 19360 solver.cpp:89] Iteration 4100, loss = 0.737111
+I0928 12:36:31.108811 19360 solver.cpp:241] Iteration 4200, lr = 0.0001
+I0928 12:36:31.109786 19360 solver.cpp:89] Iteration 4200, loss = 0.707571
+I0928 12:38:58.554539 19360 solver.cpp:241] Iteration 4300, lr = 0.0001
+I0928 12:38:58.555516 19360 solver.cpp:89] Iteration 4300, loss = 0.466718
+I0928 12:41:26.901602 19360 solver.cpp:241] Iteration 4400, lr = 0.0001
+I0928 12:41:26.902580 19360 solver.cpp:89] Iteration 4400, loss = 0.506434
+I0928 12:43:51.640422 13224 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:43:54.621737 19360 solver.cpp:241] Iteration 4500, lr = 0.0001
+I0928 12:43:54.622712 19360 solver.cpp:89] Iteration 4500, loss = 0.530029
+I0928 12:43:54.622712 19360 solver.cpp:108] Iteration 4500, Testing net
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer cifar
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer conv1
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer pool1
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer relu1
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer conv2
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer relu2
+I0928 12:43:54.622712 1936output need close!
+filename: cifar10_quick_iter_5000_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_5000.solverstate_t, fd: 3
+output need close!
+filename: cifar10_quick_iter_5000_t, fd: -1
+output need close!
+filename: cifar10_quick_iter_5000.solverstate_t, fd: -1
+0 net.cpp:288] Copying source layer pool2
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer conv3
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer relu3
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer pool3
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer ip1
+I0928 12:43:54.622712 19360 net.cpp:288] Copying source layer ip2
+I0928 12:43:54.622712 19360 net.cpp:285] Ignoring source layer loss
+I0928 12:44:49.717358 12812 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:44:50.852082 19360 solver.cpp:144] Test score #0: 0.7379
+I0928 12:44:50.852082 19360 solver.cpp:144] Test score #1: 0.778054
+I0928 12:47:18.635711 19360 solver.cpp:241] Iteration 4600, lr = 0.0001
+I0928 12:47:18.636667 19360 solver.cpp:89] Iteration 4600, loss = 0.693993
+I0928 12:49:45.403769 19360 solver.cpp:241] Iteration 4700, lr = 0.0001
+I0928 12:49:45.404747 19360 solver.cpp:89] Iteration 4700, loss = 0.678984
+I0928 12:52:16.305424 19360 solver.cpp:241] Iteration 4800, lr = 0.0001
+I0928 12:52:16.306401 19360 solver.cpp:89] Iteration 4800, loss = 0.447014
+I0928 12:54:49.115214 19360 solver.cpp:241] Iteration 4900, lr = 0.0001
+I0928 12:54:49.115214 19360 solver.cpp:89] Iteration 4900, loss = 0.501683
+I0928 12:57:17.263066 17880 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:57:20.108664 19360 solver.cpp:241] Iteration 5000, lr = 0.0001
+I0928 12:57:20.109642 19360 solver.cpp:89] Iteration 5000, loss = 0.530288
+I0928 12:57:20.109642 19360 solver.cpp:108] Iteration 5000, Testing net
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer cifar
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer conv1
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer pool1
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer relu1
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer conv2
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer relu2
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer pool2
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer conv3
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer relu3
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer pool3
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer ip1
+I0928 12:57:20.109642 19360 net.cpp:288] Copying source layer ip2
+I0928 12:57:20.109642 19360 net.cpp:285] Ignoring source layer loss
+I0928 12:58:16.243310 18168 data_layer.cpp:116] Restarting data prefetching from start.
+I0928 12:58:17.347762 19360 solver.cpp:144] Test score #0: 0.7419
+I0928 12:58:17.347762 19360 solver.cpp:144] Test score #1: 0.771186
+I0928 12:58:17.347762 19360 net.cpp:349] Serializing 13 layers
+I0928 12:58:17.350692 19360 solver.cpp:161] Snapshotting to cifar10_quick_iter_5000
+I0928 12:58:18.227632 19360 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_5000.solverstate
+I0928 12:58:19.125042 19360 net.cpp:349] Serializing 13 layers
+I0928 12:58:19.128057 19360 solver.cpp:161] Snapshotting to cifar10_quick_iter_5000
+I0928 12:58:19.144572 19360 solver.cpp:169] Snapshotting solver state to cifar10_quick_iter_5000.solverstate
+I0928 12:58:19.160197 19360 solver.cpp:102] Optimization Done.
+I0928 12:58:19.160197 19360 train_net.cpp:34] Optimization Done.
