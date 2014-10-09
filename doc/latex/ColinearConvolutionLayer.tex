@@ -1,0 +1,113 @@
+\documentclass[12pt]{article}
+\usepackage[ansinew]{inputenc} % ASCII (Western CP)
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage[colorlinks]{hyperref}
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\title{Colinear Convolution Layer}
+\author{Pang Liang}
+
+\begin{document}
+\maketitle
+
+\section{Cifar10 Database}
+The CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class. There are 50000 training images and 10000 test images. (See \url{http://www.cs.toronto.edu/~kriz/cifar.html})
+
+Fig~\ref{fig:cifar10} are the classes in the dataset, as well as 10 random images from each.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[height=8cm]{sample.jpg}
+    \caption{\label{fig:cifar10} Example of cifar10 database. }
+\end{figure}
+
+\section{Caffe Framework of Deep Learning}
+Caffe is a deep learning framework developed with cleanliness, readability, and speed in mind. (See \url{http://caffe.berkeleyvision.org})
+
+It implement many kind of layers list below:
+\begin{itemize}
+    \item Vision Layers
+    \begin{itemize}
+        \item Convolution $\surd$
+        \item Pooling $\surd$
+        \item Local Response Normalization (LRN) $\surd$
+    \end{itemize}
+    \item Loss Layers
+    \begin{itemize}
+        \item Softmax $\surd$
+        \item Sum-of-Squares / Euclidean
+        \item Hinge / Margin
+        \item Sigmoid Cross-Entropy
+    %     \item Infogain
+    %     \item Accuracy and Top-k
+    \end{itemize}
+    \item Activation / Neuron Layers
+    \begin{itemize}
+        \item ReLU / Rectified-Linear and Leaky-ReLU $\surd$
+        \item Sigmoid
+        \item TanH / Hyperbolic Tangent
+    %     \item Absolute Value
+    %     \item Power
+    %     \item BNLL
+    \end{itemize}
+    % \item Data Layers
+    % \begin{itemize}
+    %     \item Database
+    %     \item In-Memory
+    %     \item HDF5 Input/HDF5 Output
+    %     \item Images
+    %     \item Windows
+    %     \item Dummy
+    % \end{itemize}
+    \item Common Layers
+    \begin{itemize}
+        \item Inner Product $\surd$
+        \item Splitting
+        \item Flattening
+        \item Concatenation
+        \item Slicing
+    \end{itemize}
+\end{itemize}
+
+\section{Fast Version of NN Structure for Cifar10}
+The Cifar10 model Fig~\ref{fig:quick_model} is a CNN that composes layers of convolution, pooling, rectified linear unit (ReLU) nonlinearities, and local contrast normalization with a linear classifier on top of it all.
+
+The inputs of the model are not the raw images or raw images normalized into $[0,1]$, but the images preprocess by the image mean operation. In other word, the pixel at same position average over all images, so the input pixel value range is $[-127,127]$. In the end of the network we use Softmax loss as the classification loss. 
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[height=15cm]{3.pdf}
+    \caption{\label{fig:quick_model} Cifar10 quick model. }
+\end{figure}
+
+\section{Colinear Convolution Layer in Formula}
+See details in Fig~\ref{fig:ccnn}.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[height=18cm]{colinearcnn.pdf}
+    \caption{\label{fig:ccnn} Colinear Convolution Layer.}
+\end{figure}
+
+\section{Experiments}
+We replace the first Convolution layer to our Colinear Convolution layer. Weights in quadratic term are initialed in range of $[0,0.000001]$, for the sake of the input range $[-127. 127]$ and form of $e*f*e$. We want the activations of the layer not too large, so the weights in quadratic term are very small. For the same reason, the weight decay is set to 1000.
+ 
+In Fig~\ref{fig:loss} and Fig~\ref{fig:acc} ,the number 16 or 32 denotes the first convolution layer output channel number. The lines entitled with Base mean that the result produce by Convolution layer, and others without produce by Colinear Convolution layer. The experiments show that the original configuration of the network is better than what we proposed.But there're some points we should optimize, which will show in next section.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[height=10cm]{1.pdf}
+    \caption{\label{fig:loss} Train loss and Test loss of four net structures.}
+\end{figure}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[height=10cm]{2.pdf}
+    \caption{\label{fig:acc} Test Accuracy of four net structures.}
+\end{figure}
+\clearpage
+\section{Restriction and Regularization of CCNN}
+\begin{enumerate}
+    \item Change the Asymmetric to Symmetric, in order to decrease the parameter numbers.
+    \item Change the L2 regularize to L1 regularize, for the 2 order relation is weaker than the 1 order relation and we need not that much parameters to model it.
+    \item Using mask matrix to erase the relations cross the channels.
+\end{enumerate}
+\end{document}
