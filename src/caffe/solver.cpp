@@ -235,6 +235,7 @@ namespace caffe {
 		vector<shared_ptr<Blob<Dtype> > >& net_params = this->net_->params();
 		vector<float>& net_params_lr = this->net_->params_lr();
 		vector<float>& net_params_weight_decay = this->net_->params_weight_decay();
+		vector<float>& net_params_lasso_decay = this->net_->params_lasso_decay();
 		// get the learning rate
 		Dtype rate = GetLearningRate();
 		if (this->param_.display() && this->iter_ % this->param_.display() == 0) {
@@ -242,12 +243,14 @@ namespace caffe {
 		}
 		Dtype momentum = this->param_.momentum();
 		Dtype weight_decay = this->param_.weight_decay();
+		Dtype lasso_decay = this->param_.lasso_decay();
 		switch (Caffe::mode()) {
 		case Caffe::CPU:
 			for (int param_id = 0; param_id < net_params.size(); ++param_id) {
 				// Compute the value to history, and then copy them to the blob's diff.
 				Dtype local_rate = rate * net_params_lr[param_id];
 				Dtype local_decay = weight_decay * net_params_weight_decay[param_id];
+				Dtype local_lasso = lasso_decay * net_params_lasso_decay[param_id];
 				caffe_cpu_axpby(net_params[param_id]->count(), local_rate,
 					net_params[param_id]->cpu_diff(), momentum,
 					history_[param_id]->mutable_cpu_data());
@@ -255,6 +258,13 @@ namespace caffe {
 					// add weight decay
 					caffe_axpy(net_params[param_id]->count(),
 						local_decay * local_rate,
+						net_params[param_id]->cpu_data(),
+						history_[param_id]->mutable_cpu_data());
+				}
+				if (local_lasso) {
+					// add lasso decay
+					caffe_cpu_lasso(net_params[param_id]->count(),
+						local_lasso * local_rate,
 						net_params[param_id]->cpu_data(),
 						history_[param_id]->mutable_cpu_data());
 				}
@@ -269,6 +279,7 @@ namespace caffe {
 				// Compute the value to history, and then copy them to the blob's diff.
 				Dtype local_rate = rate * net_params_lr[param_id];
 				Dtype local_decay = weight_decay * net_params_weight_decay[param_id];
+				Dtype local_lasso = lasso_decay * net_params_lasso_decay[param_id];
 				caffe_gpu_axpby(net_params[param_id]->count(), local_rate,
 					net_params[param_id]->gpu_diff(), momentum,
 					history_[param_id]->mutable_gpu_data());
@@ -278,6 +289,14 @@ namespace caffe {
 						local_decay * local_rate,
 						net_params[param_id]->gpu_data(),
 						history_[param_id]->mutable_gpu_data());
+				}
+				if (local_lasso) {
+					// add lasso decay
+					caffe_gpu_lasso(net_params[param_id]->count(),
+						local_lasso * local_rate,
+						net_params[param_id]->gpu_data(),
+						history_[param_id]->mutable_gpu_data());
+					LOG(INFO) << "lasso decay: " << local_lasso * local_rate;
 				}
 				// copy
 				caffe_gpu_copy(net_params[param_id]->count(),

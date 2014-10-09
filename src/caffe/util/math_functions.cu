@@ -64,6 +64,31 @@ void caffe_gpu_add_scalar(const int N, const double alpha, double* Y) {
 }
 
 template <typename Dtype>
+__global__ void lasso_kernel(const int n, const Dtype lasso, const Dtype* x, Dtype* y) {
+  CUDA_KERNEL_LOOP(index, n) {
+    if (x[index] - y[index] >= 0) {
+		y[index] = min(y[index]+lasso, x[index]);
+	} else {
+		y[index] = max(y[index]-lasso, x[index]);
+	}
+  }
+}
+
+template <>
+void caffe_gpu_lasso(const int N, const float lasso, const float* X, float* Y) {
+  // NOLINT_NEXT_LINE(whitespace/operators)
+  lasso_kernel<float><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
+      N, lasso, X, Y);
+}
+
+template <>
+void caffe_gpu_lasso(const int N, const double lasso, const double* X, double* Y) {
+  // NOLINT_NEXT_LINE(whitespace/operators)
+  lasso_kernel<double><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
+      N, lasso, X, Y);
+}
+
+template <typename Dtype>
 __global__ void mul_kernel(const int n, const Dtype* a,
     const Dtype* b, Dtype* y) {
   CUDA_KERNEL_LOOP(index, n) {

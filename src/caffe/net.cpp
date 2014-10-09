@@ -211,6 +211,20 @@ namespace caffe {
 					params_weight_decay_.push_back(1.);
 				}
 			}
+			// push the lasso decay multipliers
+			if (layers_[i]->layer_param().lasso_decay_size()) {
+				CHECK_EQ(layers_[i]->layer_param().lasso_decay_size(),
+					layer_blobs.size());
+				for (int j = 0; j < layer_blobs.size(); ++j) {
+					float local_decay = layers_[i]->layer_param().lasso_decay(j);
+					CHECK_GE(local_decay, 0.);
+					params_lasso_decay_.push_back(local_decay);
+				}
+			} else {
+				for (int j = 0; j < layer_blobs.size(); ++j) {
+					params_lasso_decay_.push_back(1.);
+				}
+			}
 		}
 	}
 

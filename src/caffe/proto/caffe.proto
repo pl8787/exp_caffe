@@ -74,6 +74,7 @@ message SolverParameter {
   optional float power = 10; // The parameter to compute the learning rate.
   optional float momentum = 11; // The momentum value.
   optional float weight_decay = 12; // The weight decay.
+  optional float lasso_decay = 21 [default = 0]; // The lasso decay.
   optional int32 stepsize = 13; // the stepsize for learning rate policy "step"
   optional int32 snapshot = 14 [default = 0]; // The snapshot interval
   optional string snapshot_prefix = 15; // The prefix for the snapshot.
@@ -160,6 +161,8 @@ message LayerParameter {
   repeated float blobs_lr = 7;
   // The weight decay that is multiplied on the global weight decay.
   repeated float weight_decay = 8;
+  // The lasso decay that is multiplied on the global lasso decay.
+  repeated float lasso_decay = 24;
 
   // Parameters for particular layer types.
   optional ConcatParameter concat_param = 9;
@@ -217,6 +220,8 @@ message ColinearConvolutionParameter {
   optional FillerParameter quadratic_weight_filler = 9; // The filler for the quadratic weight
   optional FillerParameter linear_weight_filler = 10; // The filler for the linear weight
   optional FillerParameter bias_filler = 11; // The filler for the bias
+  optional bool symmetric = 12 [default = false]; // whether quadratic term to be symmetric matrix
+  optional uint32 mask = 13 [default = 0]; // whether using mask matrix to erase weights
 }
 
 // Message that stores parameters used by DataLayer

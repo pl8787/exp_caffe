@@ -103,6 +103,7 @@ class Net {
   // returns the parameter learning rate multipliers
   inline vector<float>& params_lr() {return params_lr_; }
   inline vector<float>& params_weight_decay() { return params_weight_decay_; }
+  inline vector<float>& params_lasso_decay() { return params_lasso_decay_; }
   // Input and output blob numbers
   inline int num_inputs() { return net_input_blobs_.size(); }
   inline int num_outputs() { return net_output_blobs_.size(); }
@@ -152,6 +153,9 @@ class Net {
   vector<float> params_lr_;
   // the weight decay multipliers
   vector<float> params_weight_decay_;
+  // the lasso decay multipliers
+  vector<float> params_lasso_decay_;
+
   DISABLE_COPY_AND_ASSIGN(Net);
 };
 

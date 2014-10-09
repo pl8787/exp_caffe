@@ -297,6 +297,10 @@ class ColinearConvolutionLayer : public Layer<Dtype> {
   int M_;
   int K_;
   int N_;
+
+  bool symmetric_;
+  int need_mask_;
+  Blob<Dtype> mask_;
 };
 
 // This function is used to create a pthread that prefetches the data.

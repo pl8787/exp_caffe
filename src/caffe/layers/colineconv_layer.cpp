@@ -51,6 +51,9 @@ namespace caffe {
 			N_ = height_out * width_out;
 			(*top)[0]->Reshape(bottom[0]->num(), num_output_, height_out, width_out);
 
+			symmetric_ = this->layer_param_.colinear_convolution_param().symmetric();
+			need_mask_ = this->layer_param_.colinear_convolution_param().mask();
+
 			// Check if we need to set up the weights
 			if (this->blobs_.size() > 0) {
 				LOG(INFO) << "Skipping parameter initialization";
@@ -93,6 +96,18 @@ namespace caffe {
 				}
 				else {
 					this->blobs_[2].reset(new Blob<Dtype>(1, 1, 1, num_output_));
+				}
+				// If necessary, initialize and fill the mask
+				if (need_mask_) {
+					switch (need_mask_)
+					{
+					case 1:
+						break;
+					case 2:
+						break;
+					default:
+						break;
+					}
 				}
 
 			}
@@ -139,22 +154,45 @@ namespace caffe {
 							for (int h = 0; h < out_height; ++h) {
 								#pragma omp parallel for
 								for (int w = 0; w < out_width; ++w) {
-									
-									Dtype rtn = 0.0;
-									const Dtype* pv1 = col_data + col_buffer_.offset(0,0,h,w);
-									const Dtype* pv2 = q_weight + this->blobs_[2]->offset(0,m,0,0);
-									for (int x = 0; x < cor_size_; ++x) 
+									// If quadratic term is symmetric
+									if (symmetric_)
 									{
-										Dtype* pv3 = col_data + col_buffer_.offset(0,0,h,w);
-										for (int y = 0; y < cor_size_; ++y)
+										Dtype rtn = 0.0;
+										const Dtype* pv1 = col_data + col_buffer_.offset(0,0,h,w);
+										const Dtype* pv2 = q_weight + this->blobs_[2]->offset(0,m,0,0);
+										for (int x = 0; x < cor_size_; ++x) 
 										{
-											rtn += (*pv1) * (*pv2) * (*pv3);
-											pv2 ++;
-											pv3 += img_offset;
+											Dtype* pv3 = col_data + col_buffer_.offset(0,x,h,w);
+											for (int y = x; y < cor_size_; ++y)
+											{
+												rtn += (x==y?1:2) * (*pv1) * (*pv2) * (*pv3);
+												pv2 ++;
+												pv3 += img_offset;
+											}
+											pv1 += img_offset;
+											pv2 += x+1;
 										}
-										pv1 += img_offset;
+										*(top_data + (*top)[0]->offset(n,m,h,w)) = rtn; 
 									}
-									*(top_data + (*top)[0]->offset(n,m,h,w)) = rtn; 
+									// If quadratic term is not symmetric
+									else 
+									{
+										Dtype rtn = 0.0;
+										const Dtype* pv1 = col_data + col_buffer_.offset(0,0,h,w);
+										const Dtype* pv2 = q_weight + this->blobs_[2]->offset(0,m,0,0);
+										for (int x = 0; x < cor_size_; ++x) 
+										{
+											Dtype* pv3 = col_data + col_buffer_.offset(0,0,h,w);
+											for (int y = 0; y < cor_size_; ++y)
+											{
+												rtn += (*pv1) * (*pv2) * (*pv3);
+												pv2 ++;
+												pv3 += img_offset;
+											}
+											pv1 += img_offset;
+										}
+										*(top_data + (*top)[0]->offset(n,m,h,w)) = rtn; 
+									}
 								}
 							}
 						}
@@ -228,23 +266,47 @@ namespace caffe {
 					for (int g = 0; g < group_; ++g) {
 						#pragma omp parallel for
 						for (int m = 0; m < num_output_; ++m) {
-							#pragma omp parallel for
-							for (int x = 0; x < cor_size_; ++x) {
+							if (symmetric_)
+							{
 								#pragma omp parallel for
-								for (int y = 0; y < cor_size_; ++y) {
-									Dtype rtn = 0.0;
-									const Dtype* pv1 = top_diff + top[0]->offset(n,m,0,0);
-									const Dtype* pv2 = col_data + col_buffer_.offset(0,x,0,0);
-									const Dtype* pv3 = col_data + col_buffer_.offset(0,y,0,0);
+								for (int x = 0; x < cor_size_; ++x) {
+									//#pragma omp parallel for
+									for (int y = x; y < cor_size_; ++y) {
+										Dtype rtn = 0.0;
+										const Dtype* pv1 = top_diff + top[0]->offset(n,m,0,0);
+										const Dtype* pv2 = col_data + col_buffer_.offset(0,x,0,0);
+										const Dtype* pv3 = col_data + col_buffer_.offset(0,y,0,0);
 
-									for (int i = 0; i < img_offset; ++i) {
-										rtn += (*pv1) * (*pv2) * (*pv3);
-										++pv1;
-										++pv2;
-										++pv3;
+										for (int i = 0; i < img_offset; ++i) {
+											rtn += (*pv1) * (*pv2) * (*pv3);
+											++pv1;
+											++pv2;
+											++pv3;
+										}
+										*(q_weight_diff + this->blobs_[2]->offset(0,m,x,y)) += (x==y?1:2) * rtn;
 									}
+								}
+							}
+							else
+							{
+								#pragma omp parallel for
+								for (int x = 0; x < cor_size_; ++x) {
+									#pragma omp parallel for
+									for (int y = 0; y < cor_size_; ++y) {
+										Dtype rtn = 0.0;
+										const Dtype* pv1 = top_diff + top[0]->offset(n,m,0,0);
+										const Dtype* pv2 = col_data + col_buffer_.offset(0,x,0,0);
+										const Dtype* pv3 = col_data + col_buffer_.offset(0,y,0,0);
 
-									*(q_weight_diff + this->blobs_[2]->offset(0,m,x,y)) += rtn;
+										for (int i = 0; i < img_offset; ++i) {
+											rtn += (*pv1) * (*pv2) * (*pv3);
+											++pv1;
+											++pv2;
+											++pv3;
+										}
+
+										*(q_weight_diff + this->blobs_[2]->offset(0,m,x,y)) += rtn;
+									}
 								}
 							}
 						}
@@ -274,23 +336,46 @@ namespace caffe {
 								for (int w = 0; w < out_width; ++w) {
 									#pragma omp parallel for
 									for (int x = 0; x < cor_size_; ++x) {
-										Dtype rtn = 0.0;
-										
-										const Dtype* pv2 = col_data + col_buffer_.offset(0,0,h,w);
-										for (int y = 0; y < cor_size_; ++y) {
-											const Dtype* pv1 = top_diff + top[0]->offset(n,0,h,w);
-											const Dtype* pv3 = q_weight + this->blobs_[2]->offset(0,0,x,y);
-											const Dtype* pv4 = q_weight + this->blobs_[2]->offset(0,0,y,x);
-											for (int m = 0; m < num_output_; ++m) {
-												rtn += (*pv1) * (*pv2) * (*pv3 + *pv4);
-												pv1 += img_offset;
-												pv3 += cor_size_offset;
-												pv4 += cor_size_offset;
+										if (symmetric_)
+										{
+											Dtype rtn = 0.0;
+											const Dtype* pv2 = col_data + col_buffer_.offset(0,0,h,w);
+											for (int y = 0; y < cor_size_; ++y) {
+												const Dtype* pv1 = top_diff + top[0]->offset(n,0,h,w);
+												const Dtype* pv3;
+												if (x<=y)
+													pv3 = q_weight + this->blobs_[2]->offset(0,0,x,y);
+												else 
+													pv3 = q_weight + this->blobs_[2]->offset(0,0,y,x);
+												for (int m = 0; m < num_output_; ++m) {
+													rtn += (*pv1) * (*pv2) * 2 * (*pv3);
+													pv1 += img_offset;
+													pv3 += cor_size_offset;
+												}
+												pv2 += img_offset;
 											}
-											pv2 += img_offset;
-										}
 										
-										*(col_diff + col_buffer_.offset(0,x,h,w)) = rtn;
+											*(col_diff + col_buffer_.offset(0,x,h,w)) = rtn;
+										}
+										else
+										{
+											Dtype rtn = 0.0;
+											const Dtype* pv2 = col_data + col_buffer_.offset(0,0,h,w);
+											for (int y = 0; y < cor_size_; ++y) {
+												const Dtype* pv1 = top_diff + top[0]->offset(n,0,h,w);
+												const Dtype* pv3 = q_weight + this->blobs_[2]->offset(0,0,x,y);
+												const Dtype* pv4 = q_weight + this->blobs_[2]->offset(0,0,y,x);
+												for (int m = 0; m < num_output_; ++m) {
+													rtn += (*pv1) * (*pv2) * (*pv3 + *pv4);
+													pv1 += img_offset;
+													pv3 += cor_size_offset;
+													pv4 += cor_size_offset;
+												}
+												pv2 += img_offset;
+											}
+										
+											*(col_diff + col_buffer_.offset(0,x,h,w)) = rtn;
+										}
 									}
 								}
 							}

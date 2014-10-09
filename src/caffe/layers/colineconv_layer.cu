@@ -30,14 +30,14 @@ namespace caffe {
 			int cor_size_offset = cor_size_*cor_size_;
 
 			for (int n = 0; n < num_; ++n) {
-				LOG(INFO) << "Colinear Forward img " << n;
+				//LOG(INFO) << "Colinear Forward img " << n;
 				// First, im2col
 				im2col_gpu(bottom_data + bottom[0]->offset(n), channels_, height_,
 					width_, kernel_size_, pad_, stride_, col_data);
 				// Second, add quadratic term
 				if (quadratic_term_) {
 
-#if GPU_FAST_MODE  // Fast version
+#if !GPU_FAST_MODE  // Fast version
 					int n_blocks = num_output_*out_height*out_width;
 					int n_threads = cor_size_ *cor_size_;
 					CUDA_POST_KERNEL_CHECK;
@@ -49,10 +49,17 @@ namespace caffe {
 #else  // Slow version
 					int n_threads = num_output_*out_height*out_width;
 					CUDA_POST_KERNEL_CHECK;
-					QuadraticActivation<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
-						(n_threads, col_data, q_weight, n, 
-						num_output_, out_height, out_width, cor_size_, 
-						img_offset, top_data);
+					if (symmetric_) {
+						QuadraticActivationSymmetric<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
+							(n_threads, col_data, q_weight, n, 
+							num_output_, out_height, out_width, cor_size_, 
+							img_offset, top_data);
+					} else {
+						QuadraticActivation<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
+							(n_threads, col_data, q_weight, n, 
+							num_output_, out_height, out_width, cor_size_, 
+							img_offset, top_data);
+					}
 					CUDA_POST_KERNEL_CHECK;
 #endif
 
@@ -137,10 +144,17 @@ namespace caffe {
 #else
 					int n_threads = num_output_*cor_size_offset;
 					CUDA_POST_KERNEL_CHECK;
-					QuadraticDWeight<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
-						(n_threads, col_data, top_diff, n, 
-						num_output_, out_height, out_width, cor_size_, 
-						img_offset, q_weight_diff);
+					if (symmetric_) {
+						QuadraticDWeightSymmetric<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
+							(n_threads, col_data, top_diff, n, 
+							num_output_, out_height, out_width, cor_size_, 
+							img_offset, q_weight_diff);
+					} else {
+						QuadraticDWeight<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
+							(n_threads, col_data, top_diff, n, 
+							num_output_, out_height, out_width, cor_size_, 
+							img_offset, q_weight_diff);
+					}
 					CUDA_POST_KERNEL_CHECK;
 #endif
 				}
@@ -171,10 +185,17 @@ namespace caffe {
 #else
 						int n_threads = cor_size_*out_height*out_width;
 						CUDA_POST_KERNEL_CHECK;
-						QuadraticError<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
-							(n_threads, col_data, top_diff, q_weight, n, 
-							num_output_, out_height, out_width, cor_size_, 
-							img_offset, cor_size_offset, col_diff);
+						if (symmetric_) {
+							QuadraticErrorSymmetric<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
+								(n_threads, col_data, top_diff, q_weight, n, 
+								num_output_, out_height, out_width, cor_size_, 
+								img_offset, cor_size_offset, col_diff);
+						} else {
+							QuadraticError<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>
+								(n_threads, col_data, top_diff, q_weight, n, 
+								num_output_, out_height, out_width, cor_size_, 
+								img_offset, cor_size_offset, col_diff);
+						}
 						CUDA_POST_KERNEL_CHECK;
 #endif
 					}
@@ -218,6 +239,35 @@ namespace caffe {
 						pv3 += img_offset;
 					}
 					pv1 += img_offset;
+				}
+				*(top_data + (((n*num_output_ + m)*out_height + h)*out_width + w)) = rtn; 
+			}
+
+	}
+
+	template <typename Dtype>
+	__global__ void QuadraticActivationSymmetric(
+		const int nthreads, const Dtype * col_data, const Dtype * q_weight, const int n,
+		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
+		const int img_offset, Dtype * top_data) {
+			CUDA_KERNEL_LOOP(index, nthreads) {
+				int m = index / out_height / out_width;
+				int h = (index / out_width) % out_height;
+				int w = index % out_width;
+				int col_buffer_offset = (h*out_width+w);
+				int blob2_offset = m*cor_size_*cor_size_;
+				Dtype rtn = 0.0;
+				const Dtype* pv1 = col_data + col_buffer_offset;
+				const Dtype* pv2 = q_weight + blob2_offset;
+				for (int x = 0; x < cor_size_; ++x) {
+					const Dtype* pv3 = col_data + col_buffer_offset + x*img_offset;
+					for (int y = x; y < cor_size_; ++y) {
+						rtn += (x==y?1:2) * (*pv1) * (*pv2) * (*pv3);
+						pv2 ++;
+						pv3 += img_offset;
+					}
+					pv1 += img_offset;
+					pv2 += x+1;
 				}
 				*(top_data + (((n*num_output_ + m)*out_height + h)*out_width + w)) = rtn; 
 			}
@@ -310,6 +360,35 @@ namespace caffe {
 	}
 
 	template <typename Dtype>
+	__global__ void QuadraticDWeightSymmetric(const int nthreads, const Dtype * col_data, const Dtype * top_diff, const int n,
+		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
+		const int img_offset, Dtype * q_weight_diff) {
+			CUDA_KERNEL_LOOP(index, nthreads) {
+				int m = index / cor_size_ / cor_size_;
+				int x = (index / cor_size_) % cor_size_;
+				int y = index % cor_size_;
+
+				if (x > y) continue;
+
+				Dtype rtn = 0.0;
+				const Dtype* pv1 = top_diff + (n*num_output_ + m)*img_offset;
+				const Dtype* pv2 = col_data + x*img_offset;
+				const Dtype* pv3 = col_data + y*img_offset;
+
+				for (int i = 0; i < img_offset; ++i) {
+					rtn += (*pv1) * (*pv2) * (*pv3);
+					++pv1;
+					++pv2;
+					++pv3;
+				}
+
+				*(q_weight_diff + ((m*cor_size_ + x)*cor_size_ + y)) += (x==y?1:2) * rtn;
+				
+
+			}
+	}
+
+	template <typename Dtype>
 	__global__ void QuadraticDWeightFast(const int nthreads, const Dtype * col_data, const Dtype * top_diff, const int n,
 		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
 		const int img_offset, Dtype * q_weight_diff) {
@@ -372,6 +451,37 @@ namespace caffe {
 						pv1 += img_offset;
 						pv3 += cor_size_offset;
 						pv4 += cor_size_offset;
+					}
+					pv2 += img_offset;
+				}
+										
+				*(col_diff + (x*out_height + h)*out_width + w) = rtn;
+			}
+	}
+
+	template <typename Dtype>
+	__global__ void QuadraticErrorSymmetric(const int nthreads, const Dtype * col_data, const Dtype * top_diff, const Dtype * q_weight, const int n,
+		const int num_output_, const int out_height, const int out_width, const int cor_size_, 
+		const int img_offset, const int cor_size_offset, Dtype * col_diff) {
+			CUDA_KERNEL_LOOP(index, nthreads) {
+				int x = index / out_height / out_width;
+				int h = (index / out_width) % out_height;
+				int w = index % out_width;
+
+				Dtype rtn = 0.0;
+										
+				const Dtype* pv2 = col_data + (h*out_width + w);
+				for (int y = 0; y < cor_size_; ++y) {
+					const Dtype* pv1 = top_diff + (n*num_output_*out_height + h)*out_width + w;
+					const Dtype* pv3;
+					if (x<=y)
+						pv3 = q_weight + (x*cor_size_ + y);
+					else
+						pv3 = q_weight + (y*cor_size_ + x);
+					for (int m = 0; m < num_output_; ++m) {
+						rtn += (*pv1) * (*pv2) * 2 * (*pv3);
+						pv1 += img_offset;
+						pv3 += cor_size_offset;
 					}
 					pv2 += img_offset;
 				}

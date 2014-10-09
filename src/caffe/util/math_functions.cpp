@@ -122,6 +122,28 @@ namespace caffe {
 	}
 
 	template <>
+	void caffe_cpu_lasso(const int N, const float lasso, const float* X, float* Y) {
+		for (int i = 0; i < N; ++i) {
+			if (X[i] - Y[i] >= 0) {
+				Y[i] = std::min(Y[i]+lasso, X[i]);
+			} else {
+				Y[i] = std::max(Y[i]-lasso, X[i]);
+			}
+		}
+	}
+
+	template <>
+	void caffe_cpu_lasso(const int N, const double lasso, const double* X, double* Y) {
+		for (int i = 0; i < N; ++i) {
+			if (X[i] - Y[i] >= 0) {
+				Y[i] = std::min(Y[i]+lasso, X[i]);
+			} else {
+				Y[i] = std::max(Y[i]-lasso, X[i]);
+			}
+		}
+	}
+
+	template <>
 	void caffe_set(const int N, const float alpha, float* Y) {
 		if (alpha == 0) {
 			memset(Y, 0, sizeof(float) * N);

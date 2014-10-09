@@ -60,6 +60,14 @@ void caffe_gpu_axpby(const int N, const Dtype alpha, const Dtype* X,
     const Dtype beta, Dtype* Y);
 
 template <typename Dtype>
+void caffe_cpu_lasso(const int N, const Dtype lasso, const Dtype* X,
+	Dtype* Y);
+
+template <typename Dtype>
+void caffe_gpu_lasso(const int N, const Dtype lasso, const Dtype* X,
+	Dtype* Y);
+
+template <typename Dtype>
 void caffe_copy(const int N, const Dtype *X, Dtype *Y);
 
 template <typename Dtype>
