@@ -73,7 +73,7 @@ It implement many kind of layers list below:
 \section{Fast Version of NN Structure for Cifar10}
 The Cifar10 model Fig~\ref{fig:quick_model} is a CNN that composes layers of convolution, pooling, rectified linear unit (ReLU) nonlinearities, and local contrast normalization with a linear classifier on top of it all.
 
-The inputs of the model are not the raw images or raw images normalized into $[0,1]$, but the images preprocess by the image mean operation. In other word, the pixel at same position average over all images, so the input pixel value range is $[-127,127]$. In the end of the network we use Softmax loss as the classification loss. 
+The inputs of the model are not the raw images or raw images normalized into $[0,1]$, but the images preprocess by the image mean operation. In other word, the pixel at same position average over all images, so the input pixel value range is $[-127,127]$. In the end of the network we use Softmax loss as the classification loss.
 
 \begin{figure}[!ht]
     \centering
@@ -82,16 +82,46 @@ The inputs of the model are not the raw images or raw images normalized into $[0
 \end{figure}
 
 \section{Colinear Convolution Layer in Formula}
-See details in Fig~\ref{fig:ccnn}.
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[height=18cm]{colinearcnn.pdf}
-    \caption{\label{fig:ccnn} Colinear Convolution Layer.}
-\end{figure}
+    \subsection{Feed Forward}
+    \begin{equation}
+    \begin{array}{l}
+    a_{in} = e_iF_ne_i^T + S_ne_i^T + b_n \\
+    = \sum_x \sum_y e_{ix}f_{xyn}e_{iy} + \sum_x s_{xn}e_{ix} + b_n
+    \end{array}
+    \end{equation}
+
+    \subsection{Back Propagation}
+    \begin{equation}
+    \sum_n \frac{\partial E}{\partial a_{in}} = \epsilon_{in}
+    \end{equation}
+    \begin{itemize}
+        \item Error Propagation
+        \begin{equation}
+        \frac{\partial E}{\partial e_{ix}} = \sum_n \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial e_{ix}} = \sum_n  \epsilon_{in} ((\sum_y (f_{xyn} + f_{yxn}) e_{iy}) + s_{xn})
+        \end{equation}
+        
+        \item Weight Update
+        \begin{equation}
+        \frac{\partial E}{\partial f_{xyn}} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial f_{xyn}} = \sum_i  \epsilon_{in} e_{ix} e_{iy}
+        \end{equation}
+        \begin{equation}
+        \frac{\partial E}{\partial s_{xn}} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial s_{xn}} = \sum_i  \epsilon_{in} e_{ix}
+        \end{equation}
+        \begin{equation}
+        \frac{\partial E}{\partial b_n} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial b_n} = \sum_i  \epsilon_{in}
+        \end{equation}
+    \end{itemize}
+    
+    See details in Fig~\ref{fig:ccnn}.
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[height=18cm]{colinearcnn.pdf}
+        \caption{\label{fig:ccnn} Colinear Convolution Layer.}
+    \end{figure}
 
 \section{Experiments}
 We replace the first Convolution layer to our Colinear Convolution layer. Weights in quadratic term are initialed in range of $[0,0.000001]$, for the sake of the input range $[-127. 127]$ and form of $e*f*e$. We want the activations of the layer not too large, so the weights in quadratic term are very small. For the same reason, the weight decay is set to 1000.
- 
+
 In Fig~\ref{fig:loss} and Fig~\ref{fig:acc} ,the number 16 or 32 denotes the first convolution layer output channel number. The lines entitled with Base mean that the result produce by Convolution layer, and others without produce by Colinear Convolution layer. The experiments show that the original configuration of the network is better than what we proposed.But there're some points we should optimize, which will show in next section.
 \begin{figure}[!ht]
     \centering
@@ -103,6 +133,15 @@ In Fig~\ref{fig:loss} and Fig~\ref{fig:acc} ,the number 16 or 32 denotes the fir
     \includegraphics[height=10cm]{2.pdf}
     \caption{\label{fig:acc} Test Accuracy of four net structures.}
 \end{figure}
+
+\section{L1 Regularize on CCNN}
+
+
+\section{Symmetric Strategy on CCNN}
+
+\section{Mask the Parameters}
+Maybe this idea can be compared with dropout connections.
+
 \clearpage
 \section{Restriction and Regularization of CCNN}
 \begin{enumerate}
