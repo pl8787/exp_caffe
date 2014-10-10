@@ -99,7 +99,7 @@ The inputs of the model are not the raw images or raw images normalized into $[0
         \begin{equation}
         \frac{\partial E}{\partial e_{ix}} = \sum_n \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial e_{ix}} = \sum_n  \epsilon_{in} ((\sum_y (f_{xyn} + f_{yxn}) e_{iy}) + s_{xn})
         \end{equation}
-        
+
         \item Weight Update
         \begin{equation}
         \frac{\partial E}{\partial f_{xyn}} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial f_{xyn}} = \sum_i  \epsilon_{in} e_{ix} e_{iy}
@@ -111,7 +111,7 @@ The inputs of the model are not the raw images or raw images normalized into $[0
         \frac{\partial E}{\partial b_n} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial b_n} = \sum_i  \epsilon_{in}
         \end{equation}
     \end{itemize}
-    
+
     See details in Fig~\ref{fig:ccnn}.
     \begin{figure}[!ht]
         \centering
@@ -135,14 +135,77 @@ In Fig~\ref{fig:loss} and Fig~\ref{fig:acc} ,the number 16 or 32 denotes the fir
 \end{figure}
 
 \section{L1 Regularize on CCNN}
+Using L1 regularize on the parameters always produces a more sparse result, which meanings the bigger the regularizer $\alpha$ the more 0 in parameters. Different from the L2 regularize $\lambda || W ||_2$, L1 regularize has the form of $\alpha || W ||_1$. L2 regularize can derived everywhere, see Eq~\ref{eq.l2}. 
+\begin{equation}
+\frac{\partial{\lambda || W ||_2}}{\partial W} = 2 \lambda W \label{eq.l2}
+\end{equation}
 
+While L1 doesn't has this good property. Its derivative is Eq~\ref{eq.l1}.
+
+\begin{equation}
+\frac{\partial{\alpha || W ||_1}}{\partial W} = \left \{ 
+\begin{array}{ll}
+-\alpha & W<0 \\
+undefine & W=0 \\
+\alpha & W
+\end{array} \right . \label{eq.l1}
+\end{equation}
+
+So in order to implement L1 regularize, we need to know $W$'s sign. For instance one parameter $w_t$ at $t$'s iterator, then we want to calculate next update of $w_t$ denoted as $w_{t+1}$. 
+
+\begin{equation}
+w_{t+1} = w_t + \Delta w - sign(w) \alpha
+\end{equation}
+
+\begin{equation}
+\hat{w_{t+1}} = w_t + \Delta w
+\end{equation}
+
+then we need $w_{t+1}$ and $w_t + \Delta w$ have the same sign. So the last term $-sign(w) \alpha$ will not change the sign. So we use Eq~\ref{eq.l1imp} for implement.
+
+\begin{equation}
+w_{t+1} = \left \{
+\begin{array}{ll}
+max(\hat{w_{t+1}}-\alpha, 0) & \hat{w_{t+1}}>=0 \\
+min(\hat{w_{t+1}}+\alpha, 0) & \hat{w_{t+1}}<0
+\end{array}
+\right .
+\label{eq.l1imp}
+\end{equation}
 
 \section{Symmetric Strategy on CCNN}
+Changing Asymmetric Matrix $F$ to Symmetric Matrix is natural to us, because the relation between $e_{ix}$ and $e_{iy}$ should be same. That means $f_{xyn}=f_{yxn}$. So we decrease parameter number from $N^2$ to $N*(N+1)/2$.
+
+Then we need modify some formula in BP process.
+\begin{itemize}
+    \item Error Propagation
+    \begin{equation}
+    \frac{\partial E}{\partial e_{ix}} = \sum_n \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial e_{ix}} = \sum_n  \epsilon_{in} ((\sum_y 2 \cdot
+    \left \{ 
+        \begin{array}{ll}
+        f_{xyn} & x<=y \\
+        f_{yxn} & x>y
+        \end{array}
+    \right \}
+    \cdot e_{iy}) + s_{xn})
+    \end{equation}
+
+    \item Weight Update
+    \begin{equation}
+    \frac{\partial E}{\partial f_{xyn}} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial f_{xyn}} = 
+    \left \{
+        \begin{array}{ll}
+        2 \sum_i  \epsilon_{in} e_{ix} e_{iy} & x<y \\
+        \sum_i  \epsilon_{in} e_{ix} e_{iy} & x=y
+        \end{array}
+    \right .
+    \end{equation}
+
+\end{itemize}
 
 \section{Mask the Parameters}
 Maybe this idea can be compared with dropout connections.
 
-\clearpage
 \section{Restriction and Regularization of CCNN}
 \begin{enumerate}
     \item Change the Asymmetric to Symmetric, in order to decrease the parameter numbers.
