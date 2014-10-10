@@ -87,6 +87,7 @@ namespace caffe {
 
 			if (param_.display() && iter_ % param_.display() == 0) {
 				LOG(INFO) << "Iteration " << iter_ << ", loss = " << loss;
+				LOG(INFO).flush();
 			}
 			if (param_.test_interval() && iter_ % param_.test_interval() == 0) {
 				Test();
