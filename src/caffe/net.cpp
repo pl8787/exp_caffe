@@ -374,6 +374,17 @@ namespace caffe {
 	}
 
 	template <typename Dtype>
+	void Net<Dtype>::ActErrorToProto(BlobProtoVector* param, bool write_diff) {
+		param->Clear();
+		LOG(INFO) << "Serializing Act & Error";
+		for (int i = 0; i < top_vecs_.size(); ++i) {
+			for (int j = 0; j < top_vecs_[i].size(); ++j) {
+				top_vecs_[i][j]->ToProto(param->add_blobs(), write_diff);
+			}
+		}
+	}
+
+	template <typename Dtype>
 	void Net<Dtype>::Update() {
 		for (int i = 0; i < params_.size(); ++i) {
 			params_[i]->Update();
