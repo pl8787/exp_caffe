@@ -15,7 +15,10 @@ using namespace caffe;  // NOLINT(build/namespaces)
 
 int main(int argc, char** argv) {
 	::google::InitGoogleLogging(argv[0]);
-	::google::SetLogDestination(0, "../tmp/");
+	::google::SetLogDestination(google::GLOG_INFO, "./log/");
+	::google::SetLogDestination(google::GLOG_WARNING, "./error/");
+	::google::SetLogDestination(google::GLOG_ERROR, "./error/");
+	::google::SetLogDestination(google::GLOG_FATAL, "./error/");
 	if (argc < 2 || argc > 3) {
 		LOG(ERROR) << "Usage: train_net solver_proto_file [resume_point_file]";
 		return 1;

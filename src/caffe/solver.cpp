@@ -87,6 +87,7 @@ namespace caffe {
 
 			if (param_.display() && iter_ % param_.display() == 0) {
 				LOG(INFO) << "Iteration " << iter_ << ", loss = " << loss;
+				LOG(INFO).flush();
 			}
 			if (param_.test_interval() && iter_ % param_.test_interval() == 0) {
 				Test();
@@ -150,6 +151,7 @@ namespace caffe {
 
 	template <typename Dtype>
 	void Solver<Dtype>::Snapshot() {
+
 		NetParameter net_param;
 		// For intermediate results, we will also dump the gradient values.
 		net_->ToProto(&net_param, param_.snapshot_diff());
@@ -161,14 +163,25 @@ namespace caffe {
 		LOG(INFO) << "Snapshotting to " << filename;
 		WriteProtoToBinaryFile(net_param, filename.c_str());
 		WriteProtoToTextFile(net_param, (filename+"_t").c_str());
+		
 		SolverState state;
+		string state_filename(filename);
 		SnapshotSolverState(&state);
 		state.set_iter(iter_);
-		state.set_learned_net(filename);
-		filename += ".solverstate";
-		LOG(INFO) << "Snapshotting solver state to " << filename;
-		WriteProtoToBinaryFile(state, filename.c_str());
-		WriteProtoToTextFile(state, (filename+"_t").c_str());
+		state.set_learned_net(state_filename);
+		state_filename += ".solverstate";
+		LOG(INFO) << "Snapshotting solver state to " << state_filename;
+		WriteProtoToBinaryFile(state, state_filename.c_str());
+		WriteProtoToTextFile(state, (state_filename+"_t").c_str());
+
+		BlobProtoVector act_error_param;
+		string act_error_filename(filename);
+		act_error_filename += ".acterr";
+		LOG(INFO) << "Snapshotting solver act & error to " << act_error_filename;
+		net_->ActErrorToProto(&act_error_param);
+		WriteProtoToBinaryFile(act_error_param, act_error_filename.c_str());
+		WriteProtoToTextFile(act_error_param, (act_error_filename+"_t").c_str());
+
 	}
 
 	template <typename Dtype>
