@@ -81,6 +81,14 @@ The inputs of the model are not the raw images or raw images normalized into $[0
     \caption{\label{fig:quick_model} Cifar10 quick model. }
 \end{figure}
 
+\section{Compare to Other Method}
+    \subsection{Network in Network}
+    
+    For more detail of the caffe configuration of NIN(CCCP Layer), see \url{https://gist.github.com/mavenlin/e56253735ef32c3c296d}.
+    \subsection{Drop Connection}
+    
+    \subsection{GoogLeNet 2014}
+
 \section{Colinear Convolution Layer in Formula}
     \subsection{Feed Forward}
     \begin{equation}
@@ -135,7 +143,7 @@ In Fig~\ref{fig:loss} and Fig~\ref{fig:acc} ,the number 16 or 32 denotes the fir
 \end{figure}
 
 \section{L1 Regularize on CCNN}
-Using L1 regularize on the parameters always produces a more sparse result, which meanings the bigger the regularizer $\alpha$ the more 0 in parameters. Different from the L2 regularize $\lambda || W ||_2$, L1 regularize has the form of $\alpha || W ||_1$. L2 regularize can derived everywhere, see Eq~\ref{eq.l2}. 
+Using L1 regularize on the parameters always produces a more sparse result, which meanings the bigger the regularizer $\alpha$ the more 0 in parameters. Different from the L2 regularize $\lambda || W ||_2$, L1 regularize has the form of $\alpha || W ||_1$. L2 regularize can derived everywhere, see Eq~\ref{eq.l2}.
 \begin{equation}
 \frac{\partial{\lambda || W ||_2}}{\partial W} = 2 \lambda W \label{eq.l2}
 \end{equation}
@@ -143,7 +151,7 @@ Using L1 regularize on the parameters always produces a more sparse result, whic
 While L1 doesn't has this good property. Its derivative is Eq~\ref{eq.l1}.
 
 \begin{equation}
-\frac{\partial{\alpha || W ||_1}}{\partial W} = \left \{ 
+\frac{\partial{\alpha || W ||_1}}{\partial W} = \left \{
 \begin{array}{ll}
 -\alpha & W<0 \\
 undefine & W=0 \\
@@ -151,7 +159,7 @@ undefine & W=0 \\
 \end{array} \right . \label{eq.l1}
 \end{equation}
 
-So in order to implement L1 regularize, we need to know $W$'s sign. For instance one parameter $w_t$ at $t$'s iterator, then we want to calculate next update of $w_t$ denoted as $w_{t+1}$. 
+So in order to implement L1 regularize, we need to know $W$'s sign. For instance one parameter $w_t$ at $t$'s iterator, then we want to calculate next update of $w_t$ denoted as $w_{t+1}$.
 
 \begin{equation}
 w_{t+1} = w_t + \Delta w - sign(w) \alpha
@@ -181,7 +189,7 @@ Then we need modify some formula in BP process.
     \item Error Propagation
     \begin{equation}
     \frac{\partial E}{\partial e_{ix}} = \sum_n \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial e_{ix}} = \sum_n  \epsilon_{in} ((\sum_y 2 \cdot
-    \left \{ 
+    \left \{
         \begin{array}{ll}
         f_{xyn} & x<=y \\
         f_{yxn} & x>y
@@ -192,7 +200,7 @@ Then we need modify some formula in BP process.
 
     \item Weight Update
     \begin{equation}
-    \frac{\partial E}{\partial f_{xyn}} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial f_{xyn}} = 
+    \frac{\partial E}{\partial f_{xyn}} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial f_{xyn}} =
     \left \{
         \begin{array}{ll}
         2 \sum_i  \epsilon_{in} e_{ix} e_{iy} & x<y \\
