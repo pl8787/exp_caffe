@@ -1,0 +1,16 @@
+\BOOKMARK [1][-]{section.1}{Cifar10 Database}{}% 1
+\BOOKMARK [1][-]{section.2}{Caffe Framework of Deep Learning}{}% 2
+\BOOKMARK [1][-]{section.3}{Fast Version of NN Structure for Cifar10}{}% 3
+\BOOKMARK [1][-]{section.4}{Compare to Other Method}{}% 4
+\BOOKMARK [2][-]{subsection.4.1}{Network in Network}{section.4}% 5
+\BOOKMARK [2][-]{subsection.4.2}{Drop Connection}{section.4}% 6
+\BOOKMARK [2][-]{subsection.4.3}{GoogLeNet 2014}{section.4}% 7
+\BOOKMARK [2][-]{subsection.4.4}{Spatially sparse CNN}{section.4}% 8
+\BOOKMARK [1][-]{section.5}{Colinear Convolution Layer in Formula}{}% 9
+\BOOKMARK [2][-]{subsection.5.1}{Feed Forward}{section.5}% 10
+\BOOKMARK [2][-]{subsection.5.2}{Back Propagation}{section.5}% 11
+\BOOKMARK [1][-]{section.6}{Experiments}{}% 12
+\BOOKMARK [1][-]{section.7}{L1 Regularize on CCNN}{}% 13
+\BOOKMARK [1][-]{section.8}{Symmetric Strategy on CCNN}{}% 14
+\BOOKMARK [1][-]{section.9}{Mask the Parameters}{}% 15
+\BOOKMARK [1][-]{section.10}{Restriction and Regularization of CCNN}{}% 16

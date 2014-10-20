@@ -91,26 +91,20 @@ The inputs of the model are not the raw images or raw images normalized into $[0
         \caption{\label{fig:nin} Network in network layer structure. }
     \end{figure}
     The goal of Network in Network is to nonlinear combine the different feature maps. It add two CCCP(Cascaded Cross Channel Parametric Pooling) Layers after Convolution Layer, and this kind of layer equivalent to the $1x1$ size Convolution Layer.Fig~\ref{fig:nin}
-
+    
     I think the reason why add this kind of layer is to add nonlinear factor to the CNN output. Combining different feature maps using two layer neural network, is to say the linear CNN is not enough for the current application. So if we make CNN a little more complicate will get better result.
-
+    
     For more detail of the caffe configuration of NIN(CCCP Layer), see \url{https://gist.github.com/mavenlin/e56253735ef32c3c296d}.
     \subsection{Drop Connection}
 
     \subsection{GoogLeNet 2014}
     Google release it best ImageNet network structure in paper \ref{}. It use $1x1$ size Convolution Layer too. But in this paper, they explain that this kind of Convolution Layers use to reduce the feature map number. This layer always puts in front of the $5x5$ or $7x7$ convolution layers, in order to reduce the input feature map of these large kernel layers.Fig~\ref{fig:googlenet}
-
+    
     \begin{figure}[!ht]
         \centering
         \includegraphics[height=15cm]{GoogLeNetStructure.pdf}
         \caption{\label{fig:googlenet} GoogLeNet structure. }
     \end{figure}
-    
-    \subsection{Spatially sparse CNN}
-    Cifar-10 achieve $95.53\%$ accuracy. See \url{http://www.kaggle.com/c/cifar-10/leaderboard/public}.
-    
-    For more detail of his network structure is \url{http://www2.warwick.ac.uk/fac/sci/statistics/staff/academic-research/graham}.
-    
 \section{Colinear Convolution Layer in Formula}
     \subsection{Feed Forward}
     \begin{equation}
