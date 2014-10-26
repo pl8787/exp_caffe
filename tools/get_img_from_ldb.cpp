@@ -43,13 +43,25 @@ bool ReadImageToDatum(const string& filename, const int label,
 
 bool WriteDatumToImage(const string& filename, Datum* datum) {
 		
-	int channels = 3;
+	int channels = datum->channels();
 	int height = datum->height();
 	int width = datum->width();
+
 	cv::Mat cv_img(height, width, CV_8UC3);
 
-	memcpy(cv_img.data, datum->data().c_str(), 3*channels*height*width*sizeof(char));
+	std::cout<<channels<<" "<<height<<" "<<width<<std::endl;
 
+	string* datum_string = datum->mutable_data();
+	int idx = 0;
+
+	for (int c = 0; c < channels; ++c) {
+		for (int h = 0; h < height; ++h) {
+			for (int w = 0; w < width; ++w) {
+				cv_img.at<Vec3b>(h,w)[c] = datum_string->at(idx);
+				idx++;
+			}
+		}
+	}
 	cv::imwrite(filename, cv_img);
 	return true;
 }
