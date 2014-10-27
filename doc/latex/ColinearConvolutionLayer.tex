@@ -4,6 +4,7 @@
 \usepackage{color}
 \usepackage[colorlinks]{hyperref}
 \usepackage{geometry}
+\usepackage{amsmath}
 \geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
 
 \title{Colinear Convolution Layer}
@@ -105,19 +106,19 @@ The inputs of the model are not the raw images or raw images normalized into $[0
         \includegraphics[height=15cm]{GoogLeNetStructure.pdf}
         \caption{\label{fig:googlenet} GoogLeNet structure. }
     \end{figure}
-    
+
     \subsection{Spatially sparse CNN}
     Cifar-10 achieve $95.53\%$ accuracy. See \url{http://www.kaggle.com/c/cifar-10/leaderboard/public}.
-    
+
     For more detail of his network structure is \url{http://www2.warwick.ac.uk/fac/sci/statistics/staff/academic-research/graham}.
-    
+
 \section{Colinear Convolution Layer in Formula}
     \subsection{Feed Forward}
     \begin{equation}
-    \begin{array}{l}
-    a_{in} = e_iF_ne_i^T + S_ne_i^T + b_n \\
-    = \sum_x \sum_y e_{ix}f_{xyn}e_{iy} + \sum_x s_{xn}e_{ix} + b_n
-    \end{array}
+    \begin{split}
+    a_{in} &= e_iF_ne_i^T + S_ne_i^T + b_n \\
+    &= \sum_x \sum_y e_{ix}f_{xyn}e_{iy} + \sum_x s_{xn}e_{ix} + b_n
+    \end{split}
     \end{equation}
 
     \subsection{Back Propagation}
@@ -232,6 +233,53 @@ Then we need modify some formula in BP process.
     \end{equation}
 
 \end{itemize}
+
+\section{Factorize Quadratic Matrix}
+Not only assume quadratic matrix is symmetric, but also low rank. So we can factorize this matrix to two low rank matrix. That is to say:
+\begin{equation}
+    F = HH^T.
+\end{equation}
+where matrix $H$ is a $N*K$ matrix. Then our parameters number decrease to $N*K$.
+
+So the next steps is to modify FP and BP procession.
+
+\begin{itemize}
+    \item Forward Propagation
+        \begin{equation}
+        \begin{split}
+            a_{in} &= e_i H_n H^T_n e_i^T + S_ne_i^T + b_n \\
+            &= \sum_x \sum_y \sum_k e_{ix}h_{xkn}h_{ykn}e_{iy} + \sum_x s_{xn}e_{ix} + b_n \\
+            &= \sum_k (\sum_x e_{ix}h_{xkn})^2 + \sum_x s_{xn}e_{ix} + b_n
+        \end{split}
+        \end{equation}
+    \item Error Propagation
+        \begin{equation}
+        \begin{split}
+            \frac{\partial E}{\partial e_{ix}} &= \sum_n \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial e_{ix}} \\
+            &= \sum_n  \epsilon_{in} ((\sum_y \sum_k 2 h_{xkn} h_{ykn} e_{iy}) + s_{xn}) \\
+            &= 2 \sum_n  \epsilon_{in} \sum_y e_{iy} \sum_k h_{xkn} h_{ykn} + \sum_n  \epsilon_{in} s_{xn}
+        \end{split}
+        \end{equation}
+    \item Weight Update
+        \begin{equation}
+            \begin{split}
+            \frac{\partial E}{\partial h_{xkn}} &= \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial h_{xkn}} \\
+            &= \sum_i  \epsilon_{in} 2 \sum_y e_{ix} e_{iy} h_{ykn} \\
+            &= 2 \sum_i \epsilon_{in} e_{ix} \sum_y e_{iy} h_{ykn}
+            \end{split}
+        \end{equation}
+        \begin{equation}
+        \frac{\partial E}{\partial s_{xn}} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial s_{xn}} = \sum_i  \epsilon_{in} e_{ix}
+        \end{equation}
+        \begin{equation}
+        \frac{\partial E}{\partial b_n} = \sum_i \frac{\partial E}{\partial a_{in}} \cdot \frac{\partial a_{in}}{\partial b_n} = \sum_i  \epsilon_{in}
+        \end{equation}
+\end{itemize}
+Consider a special condition that set $K=1$. That means our matrix can be factorize into two vectors dot product. In this situation we can use a special active function and convolutional layer to mimic that. It's easy to prove that this kind of factorization is equivalent to the convolutional layer add a quadratic active function - $x^2$.
+\begin{equation}
+    \sum_k (\sum_x e_{ix}h_{xkn})^2 = \sum_x \sum_y \sum_k e_{ix}h_{xkn}h_{ykn}e_{iy}.
+\end{equation}
+
 
 \section{Mask the Parameters}
 Maybe this idea can be compared with dropout connections.
