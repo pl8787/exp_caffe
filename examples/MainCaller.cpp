@@ -1,6 +1,6 @@
-//#include "../../src/caffe/test/test_caffe_main.cpp"
+#include "../../src/caffe/test/test_caffe_main.cpp"
 //#include "../../tools/train_net.cpp"
-#include "../../tools/get_img_from_ldb.cpp"
+//#include "../../tools/get_img_from_ldb.cpp"
 //#include "../../tools/test_net.cpp"
 //#include "../../tools/finetune_net.cpp"
 //#include "../../tools/net_speed_benchmark.cpp"

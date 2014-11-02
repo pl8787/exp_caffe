@@ -222,6 +222,7 @@ message ColinearConvolutionParameter {
   optional FillerParameter bias_filler = 11; // The filler for the bias
   optional bool symmetric = 12 [default = false]; // whether quadratic term to be symmetric matrix
   optional uint32 mask = 13 [default = 0]; // whether using mask matrix to erase weights
+  optional uint32 factor = 14 [default = 0]; // matrix factorization by factor
 }
 
 // Message that stores parameters used by DataLayer

@@ -294,6 +294,7 @@ class ColinearConvolutionLayer : public Layer<Dtype> {
   bool quadratic_term_;
   bool linear_term_;
   bool bias_term_;
+  int factor_;
   int M_;
   int K_;
   int N_;

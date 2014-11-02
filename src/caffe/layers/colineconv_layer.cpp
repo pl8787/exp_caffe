@@ -27,6 +27,7 @@ namespace caffe {
 			height_ = bottom[0]->height();
 			width_ = bottom[0]->width();
 			num_output_ = this->layer_param_.colinear_convolution_param().num_output();
+			factor_ = this->layer_param_.colinear_convolution_param().factor();
 			cor_size_ = kernel_size_ * kernel_size_ * channels_;
 			CHECK_GT(num_output_, 0);
 			CHECK_EQ(channels_ % group_, 0);
@@ -87,12 +88,22 @@ namespace caffe {
 				}
 				// If necessary, initialize and fill the quadratic term
 				if (quadratic_term_) {
-					this->blobs_[2].reset(new Blob<Dtype>(
-						1, num_output_, kernel_size_ * kernel_size_ * channels_, kernel_size_ * kernel_size_ * channels_));
-					// fill the weights
-					shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
-						this->layer_param_.colinear_convolution_param().quadratic_weight_filler()));
-					weight_filler->Fill(this->blobs_[2].get());
+					if (factor_) {
+						this->blobs_[2].reset(new Blob<Dtype>(
+							1, num_output_, kernel_size_ * kernel_size_ * channels_, factor_));
+						// fill the weights
+						shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
+							this->layer_param_.colinear_convolution_param().quadratic_weight_filler()));
+						weight_filler->Fill(this->blobs_[2].get());
+					}
+					else {
+						this->blobs_[2].reset(new Blob<Dtype>(
+							1, num_output_, kernel_size_ * kernel_size_ * channels_, kernel_size_ * kernel_size_ * channels_));
+						// fill the weights
+						shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
+							this->layer_param_.colinear_convolution_param().quadratic_weight_filler()));
+						weight_filler->Fill(this->blobs_[2].get());
+					}
 				}
 				else {
 					this->blobs_[2].reset(new Blob<Dtype>(1, 1, 1, num_output_));
@@ -154,8 +165,26 @@ namespace caffe {
 							for (int h = 0; h < out_height; ++h) {
 								#pragma omp parallel for
 								for (int w = 0; w < out_width; ++w) {
+									if (factor_)
+									{
+										Dtype rtn = 0.0;
+										for (int k = 0; k < factor_; ++k)
+										{
+											const Dtype* pv1 = col_data + col_buffer_.offset(0,0,h,w);
+											const Dtype* pv2 = q_weight + this->blobs_[2]->offset(0,m,0,k);
+											Dtype temp = 0.0;
+											for (int x = 0; x < cor_size_; ++x) 
+											{
+												temp += (*pv1) * (*pv2);
+												pv1 += img_offset;
+												pv2 += factor_;
+											}
+											rtn += temp*temp;
+										}
+										*(top_data + (*top)[0]->offset(n,m,h,w)) = rtn; 
+									}
 									// If quadratic term is symmetric
-									if (symmetric_)
+									else if (symmetric_)
 									{
 										Dtype rtn = 0.0;
 										const Dtype* pv1 = col_data + col_buffer_.offset(0,0,h,w);
@@ -266,7 +295,34 @@ namespace caffe {
 					for (int g = 0; g < group_; ++g) {
 						#pragma omp parallel for
 						for (int m = 0; m < num_output_; ++m) {
-							if (symmetric_)
+							if (factor_)
+							{
+								#pragma omp parallel for
+								for (int x = 0; x < cor_size_; ++x) {
+									#pragma omp parallel for
+									for (int k = 0; k < factor_; ++k) {
+										Dtype rtn = 0.0;
+										const Dtype* pv1 = top_diff + top[0]->offset(n,m,0,0);
+										const Dtype* pv2 = col_data + col_buffer_.offset(0,x,0,0);
+										for (int i = 0; i < img_offset; ++i) {
+											const Dtype* pv3 = col_data + i;
+											const Dtype* pv4 = q_weight + this->blobs_[2]->offset(0,m,0,k);
+											Dtype temp = 0.0;
+											for (int y = 0; y < cor_size_; ++y)
+											{
+												temp += (*pv3) * (*pv4);
+												pv3 += img_offset;
+												pv4 += factor_;
+											}
+											rtn += (*pv1) * (*pv2) * temp;  
+											++pv1;
+											++pv2;
+										}
+										*(q_weight_diff + this->blobs_[2]->offset(0,m,x,k)) += 2*rtn;
+									}
+								}
+							}
+							else if (symmetric_)
 							{
 								#pragma omp parallel for
 								for (int x = 0; x < cor_size_; ++x) {
@@ -336,7 +392,32 @@ namespace caffe {
 								for (int w = 0; w < out_width; ++w) {
 									#pragma omp parallel for
 									for (int x = 0; x < cor_size_; ++x) {
-										if (symmetric_)
+										if (factor_)
+										{
+											Dtype rtn = 0.0;
+											const Dtype* pv2 = col_data + col_buffer_.offset(0,0,h,w);
+											for (int y = 0; y < cor_size_; ++y) {
+												const Dtype* pv1 = top_diff + top[0]->offset(n,0,h,w);
+												Dtype temp = 0.0;
+												for (int m = 0; m < num_output_; ++m) {
+													Dtype sum_w = 0.0;
+													const Dtype* pv3 = q_weight + this->blobs_[2]->offset(0,m,x,0);
+													const Dtype* pv4 = q_weight + this->blobs_[2]->offset(0,m,y,0);
+													for (int k = 0; k < factor_; ++k) {
+														sum_w += (*pv3) * (*pv4);
+														++pv3;
+														++pv4;
+													}
+													temp += (*pv1) * sum_w;
+													pv1 += img_offset;
+												}
+												rtn += (*pv2) * temp;
+												pv2 += img_offset;
+											}
+                    
+											*(col_diff + col_buffer_.offset(0,x,h,w)) = 2*rtn;
+										}
+										else if (symmetric_)
 										{
 											Dtype rtn = 0.0;
 											const Dtype* pv2 = col_data + col_buffer_.offset(0,0,h,w);
