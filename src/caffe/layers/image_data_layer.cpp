@@ -34,6 +34,7 @@ namespace caffe {
 		Dtype* top_label = layer->prefetch_label_->mutable_cpu_data();
 		ImageDataParameter image_data_param = layer->layer_param_.image_data_param();
 		const Dtype scale = image_data_param.scale();
+		const Dtype bias = image_data_param.bias();
 		const int batch_size = image_data_param.batch_size();
 		const int crop_size = image_data_param.crop_size();
 		const bool mirror = image_data_param.mirror();
@@ -56,7 +57,7 @@ namespace caffe {
 			CHECK_GT(lines_size, layer->lines_id_);
 			if (!ReadImageToDatum(layer->lines_[layer->lines_id_].first,
 				layer->lines_[layer->lines_id_].second,
-				new_height, new_width, &datum)) {
+				new_height, new_width, &datum, image_data_param.channels())) {
 					continue;
 			}
 			const string& data = datum.data();
@@ -81,7 +82,7 @@ namespace caffe {
 								int data_index = (c * height + h + h_off) * width + w + w_off;
 								Dtype datum_element =
 									static_cast<Dtype>(static_cast<uint8_t>(data[data_index]));
-								top_data[top_index] = (datum_element - mean[data_index]) * scale;
+								top_data[top_index] = (datum_element - mean[data_index] - bias) * scale;
 							}
 						}
 					}
@@ -95,7 +96,7 @@ namespace caffe {
 								int data_index = (c * height + h + h_off) * width + w + w_off;
 								Dtype datum_element =
 									static_cast<Dtype>(static_cast<uint8_t>(data[data_index]));
-								top_data[top_index] = (datum_element - mean[data_index]) * scale;
+								top_data[top_index] = (datum_element - mean[data_index] - bias) * scale;
 							}
 						}
 					}
@@ -106,12 +107,12 @@ namespace caffe {
 					for (int j = 0; j < size; ++j) {
 						Dtype datum_element =
 							static_cast<Dtype>(static_cast<uint8_t>(data[j]));
-						top_data[item_id * size + j] = (datum_element - mean[j]) * scale;
+						top_data[item_id * size + j] = (datum_element - mean[j] - bias) * scale;
 					}
 				} else {
 					for (int j = 0; j < size; ++j) {
 						top_data[item_id * size + j] =
-							(datum.float_data(j) - mean[j]) * scale;
+							(datum.float_data(j) - mean[j] - bias) * scale;
 					}
 				}
 			}
@@ -178,7 +179,7 @@ namespace caffe {
 			// Read a data point, and use it to initialize the top blob.
 			Datum datum;
 			CHECK(ReadImageToDatum(lines_[lines_id_].first, lines_[lines_id_].second,
-				new_height, new_width, &datum));
+				new_height, new_width, &datum, this->layer_param_.image_data_param().channels()));
 			// image
 			const int crop_size = this->layer_param_.image_data_param().crop_size();
 			const int batch_size = this->layer_param_.image_data_param().batch_size();

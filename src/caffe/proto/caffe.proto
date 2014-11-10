@@ -129,6 +129,8 @@ message LayerParameter {
     DATA = 5;
     DROPOUT = 6;
     EUCLIDEAN_LOSS = 7;
+    EUCLIDEAN_MASK_LOSS = 31;
+    EUCLIDEAN_MASK = 32;
     ELTWISE_PRODUCT = 25;
     FLATTEN = 8;
     HDF5_DATA = 9;
@@ -290,6 +292,8 @@ message ImageDataParameter {
   // It will also resize images if new_height or new_width are not zero.
   optional uint32 new_height = 9 [default = 0];
   optional uint32 new_width = 10 [default = 0];
+  optional float bias = 11 [default = 0];
+  optional float channels = 12 [default = 3];
 }
 
 // Message that stores parameters InfogainLossLayer

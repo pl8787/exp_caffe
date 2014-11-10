@@ -84,6 +84,7 @@ class Net {
   // Writes the net to a proto.
   void ToProto(NetParameter* param, bool write_diff = false);
   void ActErrorToProto(BlobProtoVector* param, bool write_diff = true);
+  void ActErrorToProtoDir(string filename, bool write_diff = false);
 
   // returns the network name.
   inline const string& name() { return name_; }

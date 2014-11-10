@@ -390,6 +390,49 @@ class EuclideanLossLayer : public Layer<Dtype> {
 };
 
 template <typename Dtype>
+class EuclideanMaskLossLayer : public Layer<Dtype> {
+ public:
+  explicit EuclideanMaskLossLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), difference_(), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // virtual Dtype Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+  //     vector<Blob<Dtype>*>* top);
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+  // virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+  //     const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+
+  Blob<Dtype> difference_;
+  Blob<Dtype> mask_;
+};
+
+template <typename Dtype>
+class EuclideanMaskLayer : public Layer<Dtype> {
+ public:
+  explicit EuclideanMaskLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), difference_(), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // The accuracy layer should not be used to compute backward operations.
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom) {
+    NOT_IMPLEMENTED;
+  }
+
+  Blob<Dtype> difference_;
+  Blob<Dtype> mask_;
+};
+
+template <typename Dtype>
 class FlattenLayer : public Layer<Dtype> {
  public:
   explicit FlattenLayer(const LayerParameter& param)

@@ -61,11 +61,11 @@ inline void WriteProtoToBinaryFile(
 }
 
 bool ReadImageToDatum(const string& filename, const int label,
-    const int height, const int width, Datum* datum);
+    const int height, const int width, Datum* datum, const int channels);
 
 inline bool ReadImageToDatum(const string& filename, const int label,
-    Datum* datum) {
-  return ReadImageToDatum(filename, label, 0, 0, datum);
+    Datum* datum, const int channels=3) {
+  return ReadImageToDatum(filename, label, 0, 0, datum, channels);
 }
 /*
 template <typename Dtype>

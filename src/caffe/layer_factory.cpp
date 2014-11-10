@@ -38,6 +38,10 @@ namespace caffe {
 			return new DropoutLayer<Dtype>(param);
 		case LayerParameter_LayerType_EUCLIDEAN_LOSS:
 			return new EuclideanLossLayer<Dtype>(param);
+		case LayerParameter_LayerType_EUCLIDEAN_MASK_LOSS:
+			return new EuclideanMaskLossLayer<Dtype>(param);
+		case LayerParameter_LayerType_EUCLIDEAN_MASK:
+			return new EuclideanMaskLayer<Dtype>(param);
 		case LayerParameter_LayerType_ELTWISE_PRODUCT:
 			return new EltwiseProductLayer<Dtype>(param);
 		case LayerParameter_LayerType_FLATTEN:

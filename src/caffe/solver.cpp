@@ -174,6 +174,9 @@ namespace caffe {
 		WriteProtoToBinaryFile(state, state_filename.c_str());
 		WriteProtoToTextFile(state, (state_filename+"_t").c_str());
 
+		net_->ActErrorToProtoDir(filename);
+
+		/*
 		BlobProtoVector act_error_param;
 		string act_error_filename(filename);
 		act_error_filename += ".acterr";
@@ -181,6 +184,8 @@ namespace caffe {
 		net_->ActErrorToProto(&act_error_param);
 		WriteProtoToBinaryFile(act_error_param, act_error_filename.c_str());
 		WriteProtoToTextFile(act_error_param, (act_error_filename+"_t").c_str());
+		*/
+
 
 	}
 

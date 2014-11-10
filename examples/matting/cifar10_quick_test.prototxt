@@ -1,0 +1,107 @@
+name: "CIFAR10_quick_test"
+layers {
+  name: "data"
+  type: IMAGE_DATA
+  top: "data"
+  top: "l1"
+  image_data_param {
+    source: "list_data.txt"
+    batch_size: 1
+    scale: 0.0039215686274
+  }
+}
+layers {
+  name: "trimap"
+  type: IMAGE_DATA
+  top: "trimap"
+  top: "l2"
+  image_data_param {
+    source: "list_gt.txt"
+    batch_size: 1
+    scale: 0.0078125
+    bias: 128
+    channels: 1
+  }
+}
+layers {
+  name: "conv1"
+  type: CONVOLUTION
+  bottom: "data"
+  top: "conv1"
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.05
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  name: "relu1"
+  type: TANH
+  bottom: "conv1"
+  top: "conv1"
+}
+layers {
+  name: "conv2"
+  type: CONVOLUTION
+  bottom: "conv1"
+  top: "conv2"
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 3
+    pad: 0
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  name: "tanh1"
+  type: TANH
+  bottom: "conv2"
+  top: "conv2"
+}
+layers {
+  name: "conv3"
+  type: CONVOLUTION
+  bottom: "conv2"
+  top: "conv3"
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 1
+    pad: 0
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  name: "loss"
+  type: EUCLIDEAN_MASK
+  bottom: "conv3"
+  bottom: "trimap"
+  top: "loss"
+}

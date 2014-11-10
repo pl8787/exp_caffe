@@ -78,30 +78,45 @@ namespace caffe {
 	}
 
 	bool ReadImageToDatum(const string& filename, const int label,
-		const int height, const int width, Datum* datum) {
+		const int height, const int width, Datum* datum, const int channels=3) {
 			cv::Mat cv_img;
+
+			int COLOR_MODE = CV_LOAD_IMAGE_COLOR;
+			if (channels == 1)
+				COLOR_MODE = CV_LOAD_IMAGE_GRAYSCALE;
+
 			if (height > 0 && width > 0) {
-				cv::Mat cv_img_origin = cv::imread(filename, CV_LOAD_IMAGE_COLOR);
+				cv::Mat cv_img_origin = cv::imread(filename, COLOR_MODE);
 				cv::resize(cv_img_origin, cv_img, cv::Size(height, width));
 			} else {
-				cv_img = cv::imread(filename, CV_LOAD_IMAGE_COLOR);
+				cv_img = cv::imread(filename, COLOR_MODE);
 			}
 			if (!cv_img.data) {
 				LOG(ERROR) << "Could not open or find file " << filename;
 				return false;
 			}
-			datum->set_channels(3);
+			datum->set_channels(channels);
 			datum->set_height(cv_img.rows);
 			datum->set_width(cv_img.cols);
 			datum->set_label(label);
 			datum->clear_data();
 			datum->clear_float_data();
 			string* datum_string = datum->mutable_data();
-			for (int c = 0; c < 3; ++c) {
+
+			if (channels == 3) {
+				for (int c = 0; c < 3; ++c) {
+					for (int h = 0; h < cv_img.rows; ++h) {
+						for (int w = 0; w < cv_img.cols; ++w) {
+							datum_string->push_back(
+								static_cast<char>(cv_img.at<cv::Vec3b>(h, w)[c]));
+						}
+					}
+				}
+			} else {
 				for (int h = 0; h < cv_img.rows; ++h) {
 					for (int w = 0; w < cv_img.cols; ++w) {
 						datum_string->push_back(
-							static_cast<char>(cv_img.at<cv::Vec3b>(h, w)[c]));
+							static_cast<char>(cv_img.at<char>(h, w)));
 					}
 				}
 			}
