@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 #include "leveldb/db.h"
 //#include "pthread.h"
@@ -17,6 +18,7 @@
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
+#include "opencvlib.h"
 
 #define HDF5_DATA_DATASET_NAME "data"
 #define HDF5_DATA_LABEL_NAME "label"
@@ -430,6 +432,61 @@ class EuclideanMaskLayer : public Layer<Dtype> {
 
   Blob<Dtype> difference_;
   Blob<Dtype> mask_;
+};
+
+template <typename Dtype>
+class MattingLossLayer : public Layer<Dtype> {
+ public:
+  explicit MattingLossLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), difference_(), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // virtual Dtype Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+  //     vector<Blob<Dtype>*>* top);
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+  // virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+  //     const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+  void GetLaplacianMatrix(Blob<Dtype>* img, Blob<Dtype>* trimap);
+  void Locate(int l1, int l2, Dtype l3);
+  bool CheckKnown(cv::Mat& trimap, cv::Mat& w_ind);
+  void CheckL();
+
+  Blob<Dtype> difference_;
+  Blob<Dtype> mask_;
+  Dtype epsilon;
+  Dtype beta;
+  bool has_mask_;
+  bool has_L_;
+  
+  std::unordered_map<int, std::unordered_map<int, Dtype> > L_;
+};
+
+template <typename Dtype>
+class MattingLayer : public Layer<Dtype> {
+ public:
+  explicit MattingLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), difference_(), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // The accuracy layer should not be used to compute backward operations.
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom) {
+    NOT_IMPLEMENTED;
+  }
+
+  Blob<Dtype> difference_;
+  Blob<Dtype> mask_;
+  bool has_mask_;
+
 };
 
 template <typename Dtype>

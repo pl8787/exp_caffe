@@ -196,6 +196,9 @@
     <ClCompile Include="..\..\src\caffe\test\test_colinear_convolution_layer.cpp">
       <Filter>caffe\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\caffe\layers\matting_layer.cpp">
+      <Filter>caffe\layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\caffe\proto\caffe.pb.h">

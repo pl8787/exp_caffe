@@ -21,9 +21,9 @@ gamma: 0.1
 # Display every 100 iterations
 display: 1
 # The maximum number of iterations
-max_iter: 100
+max_iter: 1000
 # snapshot intermediate results
-snapshot: 50
-snapshot_prefix: "models/GT27/cifar10_quick_wide"
+snapshot: 200
+snapshot_prefix: "models/GT01/cifar10_quick_wide"
 # solver mode: CPU or GPU
 solver_mode: CPU

@@ -143,6 +143,8 @@ message LayerParameter {
     LRN = 15;
     MEMORY_DATA = 29;
     MULTINOMIAL_LOGISTIC_LOSS = 16;
+    MATTING = 33;
+    MATTING_LOSS = 34;
     POOLING = 17;
     POWER = 26;
     RELU = 18;
@@ -182,6 +184,7 @@ message LayerParameter {
   optional PoolingParameter pooling_param = 19;
   optional PowerParameter power_param = 21;
   optional WindowDataParameter window_data_param = 20;
+  optional MattingLossParameter matting_loss_param = 25;
 
   // DEPRECATED: The layer parameters specified as a V0LayerParameter.
   // This should never be used by any code except to upgrade to the new
@@ -265,6 +268,12 @@ message HDF5DataParameter {
 // Message that stores parameters used by HDF5OutputLayer
 message HDF5OutputParameter {
   optional string file_name = 1;
+}
+
+// Message that stores parameters used by MattingLossLayer
+message MattingLossParameter {
+  optional float epsilon = 1 [default = 1e-7];
+  optional float beta = 2 [default = 1.0];
 }
 
 // Message that stores parameters used by ImageDataLayer

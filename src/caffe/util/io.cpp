@@ -77,6 +77,56 @@ namespace caffe {
 		}
 	}
 
+	template <>
+	bool ChangeBlobToImage(Blob<float>* blob, cv::Mat& mat) {
+		int channels = blob->channels();
+		int height = blob->height();
+		int width = blob->width();
+		if (channels == 3) {
+			int p = 0;
+			for (int c = 0; c < channels; ++c) {
+				for (int h = 0; h < height; ++h) {
+					for (int w = 0; w < width; ++w) {
+						mat.at<cv::Vec3f>(h,w)[c] = blob->cpu_data()[p++];
+					}
+				}
+			}
+		} else {
+			int p = 0;
+			for (int h = 0; h < height; ++h) {
+				for (int w = 0; w < width; ++w) {
+					mat.at<float>(h,w) = blob->cpu_data()[p++];
+				}
+			}
+		}
+		return true;
+	}
+
+	template <>
+	bool ChangeBlobToImage(Blob<double>* blob, cv::Mat& mat) {
+		int channels = blob->channels();
+		int height = blob->height();
+		int width = blob->width();
+		if (channels == 3) {
+			int p = 0;
+			for (int c = 0; c < channels; ++c) {
+				for (int h = 0; h < height; ++h) {
+					for (int w = 0; w < width; ++w) {
+						mat.at<cv::Vec3d>(h,w)[c] = blob->cpu_data()[p++];
+					}
+				}
+			}
+		} else {
+			int p = 0;
+			for (int h = 0; h < height; ++h) {
+				for (int w = 0; w < width; ++w) {
+					mat.at<double>(h,w) = blob->cpu_data()[p++];
+				}
+			}
+		}
+		return true;
+	}
+
 	bool ReadImageToDatum(const string& filename, const int label,
 		const int height, const int width, Datum* datum, const int channels=3) {
 			cv::Mat cv_img;
