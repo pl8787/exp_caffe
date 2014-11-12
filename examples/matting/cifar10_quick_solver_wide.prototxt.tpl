@@ -24,6 +24,6 @@ display: 1
 max_iter: 1000
 # snapshot intermediate results
 snapshot: 200
-snapshot_prefix: "models/GT%02d/cifar10_quick_wide"
+snapshot_prefix: "models_wide/GT%02d/cifar10_quick_wide"
 # solver mode: CPU or GPU
 solver_mode: CPU

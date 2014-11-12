@@ -264,6 +264,7 @@ namespace caffe {
 				bottom[0]->height(), bottom[0]->width());
 			mask_.Reshape(bottom[0]->num(), bottom[0]->channels(),
 				bottom[0]->height(), bottom[0]->width());
+			has_mask_ = false;
 	}
 
 	template <typename Dtype>
@@ -271,10 +272,19 @@ namespace caffe {
 		vector<Blob<Dtype>*>* top) {
 			int count = bottom[0]->count();
 			int num = bottom[0]->num();
+
+			caffe_cpu_sign(count, bottom[1]->cpu_data(), bottom[1]->mutable_cpu_data());
+
+			if (!has_mask_) {
+				caffe_cpu_fabs(count, bottom[1]->cpu_data(), mask_.mutable_cpu_data());
+				caffe_cpu_sign(count, mask_.cpu_data(), mask_.mutable_cpu_data());
+				has_mask_ = true;
+			}
+
 			caffe_sub(count, bottom[0]->cpu_data(), bottom[1]->cpu_data(),
 				difference_.mutable_cpu_data());
-			caffe_cpu_fabs(count, bottom[1]->cpu_data(), mask_.mutable_cpu_data());
 			caffe_mul(count, mask_.cpu_data(), difference_.cpu_data(), difference_.mutable_cpu_data());
+
 			Dtype loss = caffe_cpu_dot(
 				count, difference_.cpu_data(), difference_.cpu_data()) / num / Dtype(2);
 			return loss;
@@ -314,10 +324,17 @@ namespace caffe {
 		vector<Blob<Dtype>*>* top) {
 			int count = bottom[0]->count();
 			int num = bottom[0]->num();
+
+			if (!has_mask_) {
+				caffe_cpu_fabs(count, bottom[1]->cpu_data(), mask_.mutable_cpu_data());
+				caffe_cpu_sign(count, mask_.cpu_data(), mask_.mutable_cpu_data());
+				has_mask_ = true;
+			}
+
 			caffe_sub(count, bottom[0]->cpu_data(), bottom[1]->cpu_data(),
 				difference_.mutable_cpu_data());
-			caffe_cpu_fabs(count, bottom[1]->cpu_data(), mask_.mutable_cpu_data());
 			caffe_mul(count, mask_.cpu_data(), difference_.cpu_data(), difference_.mutable_cpu_data());
+
 			Dtype loss = caffe_cpu_dot(
 				count, difference_.cpu_data(), difference_.cpu_data()) / num / Dtype(2);
 			

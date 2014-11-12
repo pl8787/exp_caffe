@@ -5,7 +5,7 @@ layers {
   top: "data"
   top: "l1"
   image_data_param {
-    source: "list_data.txt"
+    source: "list_data_wide.txt"
     batch_size: 1
     scale: 0.0039215686274
   }
@@ -16,7 +16,7 @@ layers {
   top: "trimap"
   top: "l2"
   image_data_param {
-    source: "list_gt.txt"
+    source: "list_gt_wide.txt"
     batch_size: 1
     scale: 0.0078125
     bias: 128

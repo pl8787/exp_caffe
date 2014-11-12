@@ -3,7 +3,7 @@ import numpy as np
 import caffe_pb2
 import sys
 
-blob_file_tpl = sys.argv[1] #'cifar10_quick_wide_iter_%s_17_0.blob'
+blob_file_tpl = sys.argv[1] #'GT01/cifar10_quick_wide_iter_%s_17_0.blob'#
 
 def show_alpha(iter):
     blob_file = blob_file_tpl % iter
@@ -17,11 +17,12 @@ def show_alpha(iter):
     img = np.zeros((blob.height, blob.width), dtype=np.uint8)
 
     for idx, p in enumerate(blob.data):
-        img[idx / blob.width, idx % blob.width] = np.uint8((p + 1.0) * 255)
+        value = min(max((p + 1.0) * 128, 0), 255)
+        img[idx / blob.width, idx % blob.width] = np.uint8(value)
         
     # cv2.imshow("alpha", img)
     cv2.imwrite(blob_file+".bmp", img)
     # cv2.waitKey(0)
     
-for i in range(50, 101, 50):
+for i in range(200, 1001, 200):
     show_alpha(i)

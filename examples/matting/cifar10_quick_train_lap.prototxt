@@ -267,4 +267,7 @@ layers {
   bottom: "cccp5"
   bottom: "trimap"
   bottom: "data"
+  matting_loss_param {
+    beta: 5
+  }
 }

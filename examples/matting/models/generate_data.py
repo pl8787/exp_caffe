@@ -13,7 +13,7 @@ out_t1_tpl = r"C:/pangl/Caffe/exp_caffe/examples/matting/data/gt_cnn_training_lo
 
 out_t2_tpl = r"C:/pangl/Caffe/exp_caffe/examples/matting/data/gt_cnn_training_lowers/Trimap2/GT%02d.bmp"
 
-for i in range(1,28):
+for i in range(28,29):
     gt = gt_tpl % i
     print gt
     input = in_tpl % i

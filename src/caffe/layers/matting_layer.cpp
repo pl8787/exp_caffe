@@ -33,6 +33,8 @@ namespace caffe {
 				bottom[0]->height(), bottom[0]->width());
 			epsilon = this->layer_param_.matting_loss_param().epsilon();
 			beta = this->layer_param_.matting_loss_param().beta();
+			gamma = this->layer_param_.matting_loss_param().gamma();
+			lambda = this->layer_param_.matting_loss_param().lambda();
 			has_mask_ = false;
 			has_L_ = false;
 	}
@@ -58,21 +60,51 @@ namespace caffe {
 
 			// caffe_set(count, (Dtype)0, difference_.mutable_cpu_data());
 
+			Dtype loss_data_term = 0.0;
+			Dtype loss_smooth_term = 0.0;
+
 			// data term
 			caffe_sub(count, bottom[0]->cpu_data(), bottom[1]->cpu_data(),
 				difference_.mutable_cpu_data());
 			caffe_mul(count, mask_.cpu_data(), difference_.cpu_data(), difference_.mutable_cpu_data());
 
+			loss_data_term = caffe_cpu_dot(
+				count, difference_.cpu_data(), difference_.cpu_data()) / num / Dtype(2);
+
+			caffe_cpu_scale(count, gamma, difference_.cpu_data(), difference_.mutable_cpu_data());
+
 			// smooth term
 			Dtype * diff = difference_.mutable_cpu_data();
 			const Dtype * alpha = bottom[0]->cpu_data();
+			const Dtype * ground = bottom[1]->cpu_data();
+#if 0
 			for (int i = 0; i < count; ++i) {
 				if (mask_.cpu_data()[i] == 0) {
 					for (auto p = L_[i].begin(); p != L_[i].end(); ++p) {
-						diff[i] += 2 * p->second * alpha[i] * beta;
+						diff[i] += 2 * p->second * alpha[p->first] * beta;
+						loss_smooth_term +=  alpha[i] * p->second * alpha[p->first];
 					}
 				}
 			}
+#endif
+
+			for (auto q = L_.begin(); q != L_.end(); ++q) {
+				int i = q->first;
+				if (mask_.cpu_data()[i] == 0) {
+					for (auto p = (q->second).begin(); p != (q->second).end(); ++p) {
+						int j = p->first;
+						diff[i] += 2 * p->second * alpha[j] * beta * lambda;
+						loss_smooth_term +=  alpha[i] * p->second * alpha[j] * lambda;
+					}
+				} else {
+					diff[i] += 2 * (alpha[i] - ground[i]) * beta;
+					loss_smooth_term += (alpha[i] - ground[i]) * (alpha[i] - ground[i]);
+				}
+			}
+
+
+			LOG(INFO) << "Data term loss: " << loss_data_term;
+			LOG(INFO) << "Smot term loss: " << loss_smooth_term;
 
 			Dtype loss = caffe_cpu_dot(
 				count, difference_.cpu_data(), difference_.cpu_data()) / num / Dtype(2);
@@ -136,6 +168,10 @@ namespace caffe {
 
 		Mat trimap(blob_trimap->height(), blob_trimap->width(), CV_32FC1);
 		ChangeBlobToImage(blob_trimap, trimap);
+
+		// imshow("img", img);
+		// imshow("trimap", trimap);
+		// waitKey(0);
 
 		int SizeH_W = img.rows * img.cols;
 		int count = 0;

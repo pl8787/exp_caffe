@@ -411,6 +411,7 @@ class EuclideanMaskLossLayer : public Layer<Dtype> {
 
   Blob<Dtype> difference_;
   Blob<Dtype> mask_;
+  bool has_mask_;
 };
 
 template <typename Dtype>
@@ -432,6 +433,7 @@ class EuclideanMaskLayer : public Layer<Dtype> {
 
   Blob<Dtype> difference_;
   Blob<Dtype> mask_;
+  bool has_mask_;
 };
 
 template <typename Dtype>
@@ -458,8 +460,16 @@ class MattingLossLayer : public Layer<Dtype> {
 
   Blob<Dtype> difference_;
   Blob<Dtype> mask_;
+
+  // epsilon is a parameter while in compute Laplacian Matrix
   Dtype epsilon;
+  // beta is a parameter that define how many data term error pass back
   Dtype beta;
+  // gamma is a parameter that define how many smooth term error pass back
+  Dtype gamma;
+  // lambda is a parameter in smooth term that determind how many 
+  // percentage of a L_ loss have.
+  Dtype lambda;
   bool has_mask_;
   bool has_L_;
   
