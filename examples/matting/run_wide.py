@@ -16,8 +16,11 @@ for i in range(1, 28): # (1, 28):
     
     print 'models%s/GT%02d' % (tag, i)
     
-    os.mkdir('models%s/GT%02d' % (tag, i))
-    
-    os.system('train_quick%s.sh' % tag)
-    
-    os.system('python models%s/blob2matrix.py "models%s/GT%02d/cifar10_quick%s_iter_%%s_5_0.blob"' % (tag,tag,i,tag))
+    try:
+        os.mkdir('models%s/GT%02d' % (tag, i))
+        
+        os.system('train_quick%s.sh' % tag)
+    except Exception:
+        print 'error'
+    finally:
+        os.system('python models%s/blob2matrix.py "models%s/GT%02d/cifar10_quick%s_iter_%%s_17_0.blob"' % (tag,tag,i,tag))
