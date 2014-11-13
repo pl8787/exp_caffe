@@ -317,6 +317,7 @@ namespace caffe {
 				bottom[0]->height(), bottom[0]->width());
 			mask_.Reshape(bottom[0]->num(), bottom[0]->channels(),
 				bottom[0]->height(), bottom[0]->width());
+			has_mask_ = false;
 	}
 
 	template <typename Dtype>
