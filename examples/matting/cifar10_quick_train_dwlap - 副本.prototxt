@@ -1,11 +1,11 @@
-name: "CIFAR10_quick_test"
+name: "CIFAR10_quick_train"
 layers {
   name: "data"
   type: IMAGE_DATA
   top: "data"
   top: "l1"
   image_data_param {
-    source: "list_data_dlap.txt"
+    source: "list_data_dwlap.txt"
     batch_size: 1
     scale: 0.0039215686274
   }
@@ -16,13 +16,36 @@ layers {
   top: "trimap"
   top: "l2"
   image_data_param {
-    source: "list_gt_dlap.txt"
+    source: "list_trimap_dwlap.txt"
     batch_size: 1
     scale: 0.0078125
     bias: 128
     channels: 1
   }
 }
+
+layers {
+  name: "cccp0"
+  type: CONVOLUTION
+  bottom: "data"
+  top: "cccp0"
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 16
+    pad: 0
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.1
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
 layers {
   name: "conv1"
   type: CONVOLUTION
@@ -82,20 +105,20 @@ layers {
 }
 
 layers {
-  name: "cccp1"
+  name: "conv3"
   type: CONVOLUTION
   bottom: "conv2"
-  top: "cccp1"
+  top: "conv3"
   blobs_lr: 1
   blobs_lr: 2
   convolution_param {
-    num_output: 1
-    pad: 0
-    kernel_size: 1
+    num_output: 16
+    pad: 1
+    kernel_size: 3
     stride: 1
     weight_filler {
       type: "gaussian"
-      std: 0.05
+      std: 0.01
     }
     bias_filler {
       type: "constant"
@@ -106,13 +129,59 @@ layers {
 layers {
   name: "tanh3"
   type: TANH
+  bottom: "conv3"
+  top: "conv3"
+}
+
+layers {
+  name: "concat"
+  type: CONCAT
+  bottom: "cccp0"
+  bottom: "conv3"
+  top: "concat"
+  concat_param {
+    concat_dim: 1
+  }
+}
+
+layers {
+  name: "cccp1"
+  type: CONVOLUTION
+  bottom: "concat"
+  top: "cccp1"
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 1
+    pad: 0
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+layers {
+  name: "tanh4"
+  type: TANH
   bottom: "cccp1"
   top: "cccp1"
 }
+
 layers {
   name: "loss"
-  type: MATTING
+  type: MATTING_LOSS
   bottom: "cccp1"
   bottom: "trimap"
-  top: "loss"
+  bottom: "data"
+  matting_loss_param {
+    gamma: 0.2
+    lambda: 0.8
+    beta: 2
+  }
 }

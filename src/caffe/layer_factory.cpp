@@ -62,6 +62,8 @@ namespace caffe {
 			return new InnerProductLayer<Dtype>(param);
 		case LayerParameter_LayerType_LRN:
 			return new LRNLayer<Dtype>(param);
+		case LayerParameter_LayerType_MASK_WEIGHT:
+			return new MaskWeightLayer<Dtype>(param);
 		case LayerParameter_LayerType_MATTING:
 			return new MattingLayer<Dtype>(param);
 		case LayerParameter_LayerType_MATTING_LOSS:

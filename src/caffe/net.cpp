@@ -385,18 +385,26 @@ namespace caffe {
 	}
 
 	template <typename Dtype>
-	void Net<Dtype>::ActErrorToProtoDir(string filename, bool write_diff) {
+	void Net<Dtype>::ActErrorToProtoDir(string filename, bool write_diff, bool is_text, bool only_last_layer) {
 		BlobProto param;
 		const int kBufferSize = 20;
 		char blob_str_buffer[kBufferSize];
 		LOG(INFO) << "Serializing Act & Error";
 		for (int i = 0; i < top_vecs_.size(); ++i) {
+
+			if (only_last_layer && i!=top_vecs_.size()-2)
+				continue;
+
 			for (int j = 0; j < top_vecs_[i].size(); ++j) {
 				LOG(INFO) << "\t Blob " << i << " " << j;
 				_snprintf(blob_str_buffer, kBufferSize, "_%d_%d", i, j);
 				string blob_filename = filename + blob_str_buffer + ".blob";
 				top_vecs_[i][j]->ToProto(&param, write_diff);
-				WriteProtoToBinaryFile(param, blob_filename);
+				if (is_text) {
+					WriteProtoToTextFile(param, blob_filename);
+				} else {
+					WriteProtoToBinaryFile(param, blob_filename);
+				}
 			}
 		}
 	}

@@ -500,4 +500,24 @@ namespace caffe {
 			CUBLAS_CHECK(cublasDscal(Caffe::cublas_handle(), n, &alpha, y, 1));
 	}
 
+	template <>
+	void caffe_cpu_zeros<float>(const int n, const float *x, float *y) {
+		for (int i = 0; i < n; ++i) {
+			if (x[i] == 0)
+				y[i] = (float)1;
+			else
+				y[i] = (float)0;
+		}
+	}
+
+	template <>
+	void caffe_cpu_zeros<double>(const int n, const double *x, double *y) {
+		for (int i = 0; i < n; ++i) {
+			if (x[i] == 0)
+				y[i] = (double)1;
+			else
+				y[i] = (double)0;
+		}
+	}
+
 }  // namespace caffe

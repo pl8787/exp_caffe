@@ -437,6 +437,32 @@ class EuclideanMaskLayer : public Layer<Dtype> {
 };
 
 template <typename Dtype>
+class MaskWeightLayer : public Layer<Dtype> {
+ public:
+  explicit MaskWeightLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // virtual Dtype Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+  //     vector<Blob<Dtype>*>* top);
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+  // virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+  //     const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+
+  int width_;
+  int height_;
+  int channel_;
+
+  Blob<Dtype> mask_;
+  bool has_mask_;
+};
+
+template <typename Dtype>
 class MattingLossLayer : public Layer<Dtype> {
  public:
   explicit MattingLossLayer(const LayerParameter& param)

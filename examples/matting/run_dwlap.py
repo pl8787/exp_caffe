@@ -1,7 +1,7 @@
 import os
 import sys
 
-tag = '_dlap'
+tag = '_dwlap'
 
 solver_file_tpl = open('cifar10_quick_solver%s.prototxt.tpl' % tag).read()
 gt_file_tpl = open('list_gt.txt.tpl').read()
@@ -22,4 +22,4 @@ for i in pic_list:
     
     os.system('train_quick%s.sh' % tag)
     
-    os.system('python models%s/blob2matrix.py "models%s/GT%02d/cifar10_quick%s_iter_%%s_8_0.blob"' % (tag,tag,i,tag))
+    os.system('python models%s/blob2matrix.py "models%s/GT%02d/cifar10_quick%s_iter_%%s_12_0.blob"' % (tag,tag,i,tag))

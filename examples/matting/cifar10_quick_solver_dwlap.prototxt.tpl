@@ -1,9 +1,9 @@
 # reduce the learning rate after 8 epochs (4000 iters) by a factor of 10
 
 # The training protocol buffer definition
-train_net: "cifar10_quick_train_dlap.prototxt"
+train_net: "cifar10_quick_train_dwlap.prototxt"
 # The testing protocol buffer definition
-test_net: "cifar10_quick_test_dlap.prototxt"
+test_net: "cifar10_quick_test_dwlap.prototxt"
 # test_iter specifies how many forward passes the test should carry out.
 # In the case of MNIST, we have test batch size 100 and 100 test iterations,
 # covering the full 10,000 testing images.
@@ -24,7 +24,7 @@ display: 1
 max_iter: 1800
 # snapshot intermediate results
 snapshot: 20
-snapshot_prefix: "models_dlap/GT%02d/cifar10_quick_dlap"
+snapshot_prefix: "models_dwlap/GT%02d/cifar10_quick_dwlap"
 snapshot_txt: false
 # solver mode: CPU or GPU
 solver_mode: CPU
