@@ -1,16 +1,4 @@
 name: "CIFAR10_quick_test"
-layers {
-  name: "data"
-  type: IMAGE_DATA
-  top: "data"
-  top: "l1"
-  image_data_param {
-    source: "list_data_masklap.txt"
-    batch_size: 1
-    scale: 0.0078125
-    bias: 128
-  }
-}
 
 layers {
   name: "trimap"
@@ -41,9 +29,22 @@ layers {
 }
 
 layers {
+  name: "test"
+  type: IMAGE_DATA
+  top: "test"
+  top: "l4"
+  image_data_param {
+    source: "list_trimap_masklap.txt"
+    batch_size: 1
+    scale: 0.0078125
+    channels: 1
+  }
+}
+
+layers {
   name: "cccp0"
   type: MASK_WEIGHT
-  bottom: "data"
+  bottom: "test"
   bottom: "trimap"
   top: "cccp0"
   mask_weight_param {

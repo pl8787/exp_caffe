@@ -482,7 +482,7 @@ class MattingLossLayer : public Layer<Dtype> {
   void GetLaplacianMatrix(Blob<Dtype>* img, Blob<Dtype>* trimap);
   void Locate(int l1, int l2, Dtype l3);
   bool CheckKnown(cv::Mat& trimap, cv::Mat& w_ind);
-  void CheckL();
+  void CheckL(int height, int width);
 
   Blob<Dtype> difference_;
   Blob<Dtype> mask_;

@@ -147,7 +147,8 @@ namespace caffe {
 	}
 
 	template <typename Dtype>
-	void MattingLossLayer<Dtype>::CheckL() {
+	void MattingLossLayer<Dtype>::CheckL(int height, int width) {
+		Mat ck_img = Mat::zeros(height, width, CV_8UC1);
 		for (auto q = L_.begin(); q != L_.end(); ++q) {
 			float sum = 0.0;
 			int i = q->first;
@@ -156,13 +157,20 @@ namespace caffe {
 			}
 			if (fabs(sum) > 1e-5) {
 				cout<<"error: "<<sum<<endl;
+				ck_img.at<char>(i/width, i%width) = 255;
+				for (auto p = L_[i].begin(); p != L_[i].end(); ++p) {
+					cout << p->second << "\t";
+					//if (i == p->first)
+					//	p->second -= sum;
+				}
+				cout << endl;
 			}
 		}
+		imwrite("check.bmp", ck_img);
 	}
 
 	template <typename Dtype>
 	void MattingLossLayer<Dtype>::GetLaplacianMatrix(Blob<Dtype> *blob_img, Blob<Dtype> *blob_trimap) {
-
 		Mat img(blob_img->height(), blob_img->width(), CV_32FC3);
 		ChangeBlobToImage(blob_img, img);
 
@@ -221,7 +229,35 @@ namespace caffe {
 					p++;
 				}
 
-				Mat elements=D-(1.0+dif*(win_cov+U*epsilon/9.0).inv(CV_SVD_SYM)*dif.t())/9.0;
+				/*
+				float det = fabs(cv::determinant(win_cov));
+				if (det >= 1e-10)	epsilon = 0;
+				else if (det < 1e-10)	epsilon = 1e-7;
+				else if (det < 1e-13)	epsilon = 1e-5;
+				else if (det < 1e-14)	epsilon = 1e-4;
+				else if (det < 1e-15)	epsilon = 1e-3;
+				else if (det < 1e-16)	epsilon = 1e-2;
+				*/
+				//float before = cv::determinant(win_cov);
+				//float after7 = cv::determinant(win_cov + U*1e-7/9.0);
+				//float after3 = cv::determinant(win_cov + U*1e-3/9.0);
+				//cout << "before: " << before << "\t" << "after: " << after7 << " " << after3 << endl;
+
+				Mat inv_mat = Mat::zeros(3, 3, CV_32FC1);
+				double cond_num = cv::invert(win_cov, inv_mat, CV_SVD_SYM);
+				epsilon = 1e-7;
+				while (cond_num < 1e-4) {
+					cond_num = cv::invert(win_cov+U*epsilon/9.0, inv_mat, CV_SVD_SYM);
+					epsilon *= 10;
+				}
+				//double cond_num = cv::invert(win_cov+U*1e-7/9.0, inv_mat, CV_SVD_SYM); 
+				//double cond_num1 = cv::invert(win_cov+U*1e-3/9.0, inv_mat, CV_SVD_SYM);
+				//if (cond_num < 1e-5)
+					//cout << "cond: " << cond_num << "\tcond1: " << cond_num1 << endl;
+
+				Mat elements=D-(1.0+dif*inv_mat*dif.t())/9.0;
+
+				//Mat elements=D-(1.0+dif*(win_cov+U*epsilon/9.0).inv(CV_SVD_SYM)*dif.t())/9.0;
 
 				int *l1=(int *)w_ind.datastart;
 				int *l2=(int *)w_ind.datastart;
@@ -245,7 +281,7 @@ namespace caffe {
 		cout<<endl<<"Complete calculate Sparse Matrix L."<<endl;
 		cout<<"L"<<endl<<"\trows="<<SizeH_W<<endl<<"\tcols="<<SizeH_W<<endl<<"\tElements="<<SizeH_W*25<<endl;
 
-		CheckL();
+		CheckL(blob_img->height(), blob_img->width());
 	}
 
 	template <typename Dtype>

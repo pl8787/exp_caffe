@@ -27,9 +27,22 @@ layers {
 }
 
 layers {
+  name: "test"
+  type: IMAGE_DATA
+  top: "test"
+  top: "l4"
+  image_data_param {
+    source: "list_one_masklap.txt"
+    batch_size: 1
+    scale: 0.0078125
+    channels: 1
+  }
+}
+
+layers {
   name: "cccp0"
   type: MASK_WEIGHT
-  bottom: "data"
+  bottom: "test"
   bottom: "trimap"
   top: "cccp0"
   mask_weight_param {
@@ -48,7 +61,8 @@ layers {
   bottom: "data"
   matting_loss_param {
     gamma: 0
-    lambda: 0.5
-    beta: 1
+    lambda: 0.2
+    beta: 10
+    epsilon: 1e-7
   }
 }
