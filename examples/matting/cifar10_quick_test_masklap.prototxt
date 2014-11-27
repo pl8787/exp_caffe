@@ -52,6 +52,8 @@ layers {
       type: "gaussian"
       std: 0.1
     }
+    need_mask: false
+    need_bottom: false
   }
 }
 

@@ -156,14 +156,10 @@ namespace caffe {
 				sum += p->second;
 			}
 			if (fabs(sum) > 1e-5) {
-				cout<<"error: "<<sum<<endl;
+				cout << "Sum of row > 1e-5: " 
+					<< "(" << i/width << ", " << i%width << ")"
+					<< " = " << sum << endl;
 				ck_img.at<char>(i/width, i%width) = 255;
-				for (auto p = L_[i].begin(); p != L_[i].end(); ++p) {
-					cout << p->second << "\t";
-					//if (i == p->first)
-					//	p->second -= sum;
-				}
-				cout << endl;
 			}
 		}
 		imwrite("check.bmp", ck_img);
@@ -229,24 +225,20 @@ namespace caffe {
 					p++;
 				}
 
-				/*
-				float det = fabs(cv::determinant(win_cov));
-				if (det >= 1e-10)	epsilon = 0;
-				else if (det < 1e-10)	epsilon = 1e-7;
-				else if (det < 1e-13)	epsilon = 1e-5;
-				else if (det < 1e-14)	epsilon = 1e-4;
-				else if (det < 1e-15)	epsilon = 1e-3;
-				else if (det < 1e-16)	epsilon = 1e-2;
-				*/
-				//float before = cv::determinant(win_cov);
-				//float after7 = cv::determinant(win_cov + U*1e-7/9.0);
-				//float after3 = cv::determinant(win_cov + U*1e-3/9.0);
-				//cout << "before: " << before << "\t" << "after: " << after7 << " " << after3 << endl;
+				/// This is a direct method. The invert of matrix precision is depended on the 
+				/// value of epsilon, if we set small epsilon the matting result will be improved,
+				/// but it might occur some ill-condition matrix, and the SGD algorithm can not 
+				/// converge; a big epsilon will solve convergence problem but more ambiguous result.
 
+				// Mat elements=D-(1.0+dif*(win_cov+U*epsilon/9.0).inv(CV_SVD_SYM)*dif.t())/9.0;
+
+				/// So we need an adaptive epsilon, and use a line search to find a good epsilon
 				Mat inv_mat = Mat::zeros(3, 3, CV_32FC1);
 				double cond_num = cv::invert(win_cov, inv_mat, CV_SVD_SYM);
 				epsilon = 1e-7;
 				while (cond_num < 1e-4) {
+					// cv::invert return the inversed condition number of a matrix
+					// ratio of the smallest singular value to the largest singular value
 					cond_num = cv::invert(win_cov+U*epsilon/9.0, inv_mat, CV_SVD_SYM);
 					epsilon *= 10;
 				}
@@ -256,8 +248,6 @@ namespace caffe {
 					//cout << "cond: " << cond_num << "\tcond1: " << cond_num1 << endl;
 
 				Mat elements=D-(1.0+dif*inv_mat*dif.t())/9.0;
-
-				//Mat elements=D-(1.0+dif*(win_cov+U*epsilon/9.0).inv(CV_SVD_SYM)*dif.t())/9.0;
 
 				int *l1=(int *)w_ind.datastart;
 				int *l2=(int *)w_ind.datastart;

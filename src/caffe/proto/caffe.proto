@@ -276,6 +276,8 @@ message HDF5OutputParameter {
 // Message that stores parameters used by MaskWeightLayer
 message MaskWeightParameter {
 	optional FillerParameter weight_filler = 1; // The filler for the weight
+	optional bool need_bottom = 2 [default = true]; // Need use of bottom data, bottom[0]
+	optional bool need_mask = 3 [default = true]; // Need use of mask, bottom[1]
 }
 
 // Message that stores parameters used by MattingLossLayer

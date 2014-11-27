@@ -47,6 +47,15 @@ namespace caffe {
 				weight_filler->Fill(this->blobs_[0].get());
 				
 			}
+
+			need_bottom_ = this->layer_param_.mask_weight_param().need_bottom();
+			need_mask_ = this->layer_param_.mask_weight_param().need_mask();
+
+			if (!need_bottom_)
+				LOG(INFO) << "Input of bottom[0] will be ignored.";
+			if (!need_mask_)
+				LOG(INFO) << "Input of bottom[1] will be ignored.";
+
 			mask_.Reshape(1, 1,	height_, width_);
 			has_mask_ = false;
 	}
@@ -60,10 +69,6 @@ namespace caffe {
 			if (!has_mask_) {
 				caffe_cpu_zeros(bottom[1]->count(), bottom[1]->cpu_data(), mask_.mutable_cpu_data());
 				has_mask_ = true;
-				//Mat mask_img(mask_.height(), mask_.width(), CV_32FC1);;
-				//ChangeBlobToImage(&mask_, mask_img);
-				//imshow("img", mask_img);
-				//waitKey(0);
 			}
 
 			Dtype *top_data = (*top)[0]->mutable_cpu_data();
@@ -75,9 +80,13 @@ namespace caffe {
 
 			for (int c = 0; c <channel_; ++c) {
 				for (int i = 0; i < height_*width_; ++i) {
-					if (true || *mask_data != 0)
+					if (!need_mask_ || *mask_data != 0)
 					{
-						*top_data += (*bottom_data) * (*weight_data);
+						if (need_bottom_) {
+							*top_data += (*bottom_data) * (*weight_data);
+						} else {
+							*top_data += *weight_data;
+						}
 					}
 					bottom_data++;
 					weight_data++;
@@ -108,9 +117,13 @@ namespace caffe {
 
 			for (int c = 0; c <channel_; ++c) {
 				for (int i = 0; i < height_*width_; ++i) {
-					if (true || *mask_data != 0)
+					if (!need_mask_ || *mask_data != 0)
 					{
-						*weight_diff = (*bottom_data) * (*top_diff);
+						if (need_bottom_) {
+							*weight_diff = (*bottom_data) * (*top_diff);
+						} else {
+							*weight_diff = *top_diff;
+						}
 					}
 					bottom_data++;
 					weight_diff++;
@@ -126,7 +139,7 @@ namespace caffe {
 
 				for (int c = 0; c <channel_; ++c) {
 					for (int i = 0; i < height_*width_; ++i) {
-						if (true || *mask_data != 0)
+						if (!need_mask_ || *mask_data != 0)
 						{
 							*bottom_diff = (*weight_data) * (*top_diff);
 						}

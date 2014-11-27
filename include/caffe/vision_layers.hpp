@@ -458,6 +458,9 @@ class MaskWeightLayer : public Layer<Dtype> {
   int height_;
   int channel_;
 
+  bool need_bottom_;
+  int need_mask_;
+
   Blob<Dtype> mask_;
   bool has_mask_;
 };
