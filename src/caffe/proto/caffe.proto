@@ -93,6 +93,9 @@ message SolverParameter {
   // random number generator -- useful for reproducible results. Otherwise,
   // (and by default) initialize using a seed derived from the system clock.
   optional int64 random_seed = 20 [default = -1];
+  optional bool snapshot_txt = 22 [default = false];
+  optional string result_blob_name = 23 [default = ""];
+  optional string result_file_name = 24 [default = ""];
 }
 
 // A message that stores the solver snapshots
@@ -129,6 +132,8 @@ message LayerParameter {
     DATA = 5;
     DROPOUT = 6;
     EUCLIDEAN_LOSS = 7;
+    EUCLIDEAN_MASK_LOSS = 31;
+    EUCLIDEAN_MASK = 32;
     ELTWISE_PRODUCT = 25;
     FLATTEN = 8;
     HDF5_DATA = 9;
@@ -141,6 +146,9 @@ message LayerParameter {
     LRN = 15;
     MEMORY_DATA = 29;
     MULTINOMIAL_LOGISTIC_LOSS = 16;
+    MATTING = 33;
+    MATTING_LOSS = 34;
+	MASK_WEIGHT = 35;
     POOLING = 17;
     POWER = 26;
     RELU = 18;
@@ -180,6 +188,8 @@ message LayerParameter {
   optional PoolingParameter pooling_param = 19;
   optional PowerParameter power_param = 21;
   optional WindowDataParameter window_data_param = 20;
+  optional MattingLossParameter matting_loss_param = 25;
+  optional MaskWeightParameter mask_weight_param = 26;
 
   // DEPRECATED: The layer parameters specified as a V0LayerParameter.
   // This should never be used by any code except to upgrade to the new
@@ -265,6 +275,22 @@ message HDF5OutputParameter {
   optional string file_name = 1;
 }
 
+// Message that stores parameters used by MaskWeightLayer
+message MaskWeightParameter {
+	optional FillerParameter weight_filler = 1; // The filler for the weight
+	optional bool need_bottom = 2 [default = true]; // Need use of bottom data, bottom[0]
+	optional bool need_mask = 3 [default = true]; // Need use of mask, bottom[1]
+	optional uint32 expand0 = 4 [default = 0]; // Expand 0 element in mask
+}
+
+// Message that stores parameters used by MattingLossLayer
+message MattingLossParameter {
+  optional float epsilon = 1 [default = 1e-7];
+  optional float beta = 2 [default = 1.0];
+  optional float gamma = 3 [default = 1.0];
+  optional float lambda = 4 [default = 1.0];
+}
+
 // Message that stores parameters used by ImageDataLayer
 message ImageDataParameter {
   // Specify the data source.
@@ -290,6 +316,8 @@ message ImageDataParameter {
   // It will also resize images if new_height or new_width are not zero.
   optional uint32 new_height = 9 [default = 0];
   optional uint32 new_width = 10 [default = 0];
+  optional float bias = 11 [default = 0];
+  optional float channels = 12 [default = 3];
 }
 
 // Message that stores parameters InfogainLossLayer

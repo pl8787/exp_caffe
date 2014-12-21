@@ -1,0 +1,64 @@
+name: "CIFAR10_quick_train"
+layers {
+  name: "data"
+  type: IMAGE_DATA
+  top: "data"
+  top: "l1"
+  image_data_param {
+    source: "list_data_masklap.txt"
+    batch_size: 1
+    scale: 0.0078125
+    bias: 128
+  }
+}
+
+layers {
+  name: "trimap"
+  type: IMAGE_DATA
+  top: "trimap"
+  top: "l2"
+  image_data_param {
+    source: "list_trimap_masklap.txt"
+    batch_size: 1
+    scale: 0.0078125
+    bias: 128
+    channels: 1
+  }
+}
+
+layers {
+  name: "cccp0"
+  type: MASK_WEIGHT
+  bottom: "trimap"
+  bottom: "trimap"
+  top: "cccp0"
+  mask_weight_param {
+    weight_filler {
+      type: "gaussian"
+      std: 0.1
+    }
+    need_mask: true
+    need_bottom: false
+    expand0: 2
+  }
+}
+
+layers {
+  name: "tanh1"
+  type: TANH
+  bottom: "cccp0"
+  top: "cccp0"
+}
+
+layers {
+  name: "loss"
+  type: MATTING_LOSS
+  bottom: "cccp0"
+  bottom: "trimap"
+  bottom: "data"
+  matting_loss_param {
+    gamma: 0
+    lambda: 0.2
+    beta: 10
+  }
+}

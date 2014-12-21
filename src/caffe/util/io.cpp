@@ -77,31 +77,96 @@ namespace caffe {
 		}
 	}
 
+	template <>
+	bool ChangeBlobToImage(Blob<float>* blob, cv::Mat& mat) {
+		int channels = blob->channels();
+		int height = blob->height();
+		int width = blob->width();
+		if (channels == 3) {
+			int p = 0;
+			for (int c = 0; c < channels; ++c) {
+				for (int h = 0; h < height; ++h) {
+					for (int w = 0; w < width; ++w) {
+						mat.at<cv::Vec3f>(h,w)[c] = blob->cpu_data()[p++];
+					}
+				}
+			}
+		} else {
+			int p = 0;
+			for (int h = 0; h < height; ++h) {
+				for (int w = 0; w < width; ++w) {
+					mat.at<float>(h,w) = blob->cpu_data()[p++];
+				}
+			}
+		}
+		return true;
+	}
+
+	template <>
+	bool ChangeBlobToImage(Blob<double>* blob, cv::Mat& mat) {
+		int channels = blob->channels();
+		int height = blob->height();
+		int width = blob->width();
+		if (channels == 3) {
+			int p = 0;
+			for (int c = 0; c < channels; ++c) {
+				for (int h = 0; h < height; ++h) {
+					for (int w = 0; w < width; ++w) {
+						mat.at<cv::Vec3d>(h,w)[c] = blob->cpu_data()[p++];
+					}
+				}
+			}
+		} else {
+			int p = 0;
+			for (int h = 0; h < height; ++h) {
+				for (int w = 0; w < width; ++w) {
+					mat.at<double>(h,w) = blob->cpu_data()[p++];
+				}
+			}
+		}
+		return true;
+	}
+
 	bool ReadImageToDatum(const string& filename, const int label,
-		const int height, const int width, Datum* datum) {
+		const int height, const int width, Datum* datum, const int channels=3) {
 			cv::Mat cv_img;
+
+			int COLOR_MODE = CV_LOAD_IMAGE_COLOR;
+			if (channels == 1)
+				COLOR_MODE = CV_LOAD_IMAGE_GRAYSCALE;
+
 			if (height > 0 && width > 0) {
-				cv::Mat cv_img_origin = cv::imread(filename, CV_LOAD_IMAGE_COLOR);
+				cv::Mat cv_img_origin = cv::imread(filename, COLOR_MODE);
 				cv::resize(cv_img_origin, cv_img, cv::Size(height, width));
 			} else {
-				cv_img = cv::imread(filename, CV_LOAD_IMAGE_COLOR);
+				cv_img = cv::imread(filename, COLOR_MODE);
 			}
 			if (!cv_img.data) {
 				LOG(ERROR) << "Could not open or find file " << filename;
 				return false;
 			}
-			datum->set_channels(3);
+			datum->set_channels(channels);
 			datum->set_height(cv_img.rows);
 			datum->set_width(cv_img.cols);
 			datum->set_label(label);
 			datum->clear_data();
 			datum->clear_float_data();
 			string* datum_string = datum->mutable_data();
-			for (int c = 0; c < 3; ++c) {
+
+			if (channels == 3) {
+				for (int c = 0; c < 3; ++c) {
+					for (int h = 0; h < cv_img.rows; ++h) {
+						for (int w = 0; w < cv_img.cols; ++w) {
+							datum_string->push_back(
+								static_cast<char>(cv_img.at<cv::Vec3b>(h, w)[c]));
+						}
+					}
+				}
+			} else {
 				for (int h = 0; h < cv_img.rows; ++h) {
 					for (int w = 0; w < cv_img.cols; ++w) {
 						datum_string->push_back(
-							static_cast<char>(cv_img.at<cv::Vec3b>(h, w)[c]));
+							static_cast<char>(cv_img.at<char>(h, w)));
 					}
 				}
 			}

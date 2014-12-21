@@ -11,6 +11,7 @@
 #include "caffe/proto/caffe.pb.h"
 
 #include "caffe/blob.hpp"
+#include "opencvlib.h"
 
 using std::string;
 using ::google::protobuf::Message;
@@ -61,12 +62,16 @@ inline void WriteProtoToBinaryFile(
 }
 
 bool ReadImageToDatum(const string& filename, const int label,
-    const int height, const int width, Datum* datum);
+    const int height, const int width, Datum* datum, const int channels);
 
 inline bool ReadImageToDatum(const string& filename, const int label,
-    Datum* datum) {
-  return ReadImageToDatum(filename, label, 0, 0, datum);
+    Datum* datum, const int channels=3) {
+  return ReadImageToDatum(filename, label, 0, 0, datum, channels);
 }
+
+template <typename Dtype>
+bool ChangeBlobToImage(Blob<Dtype>* blob, cv::Mat& mat);
+
 /*
 template <typename Dtype>
 void hdf5_load_nd_dataset_helper(

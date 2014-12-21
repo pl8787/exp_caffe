@@ -136,6 +136,15 @@ namespace caffe {
 					}
 				}
 			}
+
+			if (param_.result_blob_name().length() != 0) {
+				LOG(INFO) << "Output result to file " << param_.result_file_name();
+				const int kBufferSize = 20;
+				char iter_str_buffer[kBufferSize];
+				_snprintf(iter_str_buffer, kBufferSize, "_iter_%d_p_%d", iter_, i);
+				string result_file_name = param_.result_file_name() + iter_str_buffer;
+				test_net_->ActErrorToProtoS(result_file_name, param_.result_blob_name(), false, false);
+			}
 		}
 		if (param_.test_compute_loss()) {
 			loss /= param_.test_iter();
@@ -162,7 +171,8 @@ namespace caffe {
 		filename += iter_str_buffer;
 		LOG(INFO) << "Snapshotting to " << filename;
 		WriteProtoToBinaryFile(net_param, filename.c_str());
-		WriteProtoToTextFile(net_param, (filename+"_t").c_str());
+		if (param_.snapshot_txt())
+			WriteProtoToTextFile(net_param, (filename+"_t").c_str());
 		
 		SolverState state;
 		string state_filename(filename);
@@ -172,8 +182,12 @@ namespace caffe {
 		state_filename += ".solverstate";
 		LOG(INFO) << "Snapshotting solver state to " << state_filename;
 		WriteProtoToBinaryFile(state, state_filename.c_str());
-		WriteProtoToTextFile(state, (state_filename+"_t").c_str());
+		if (param_.snapshot_txt())
+			WriteProtoToTextFile(state, (state_filename+"_t").c_str());
 
+		net_->ActErrorToProtoDir(filename);
+
+		/*
 		BlobProtoVector act_error_param;
 		string act_error_filename(filename);
 		act_error_filename += ".acterr";
@@ -181,6 +195,8 @@ namespace caffe {
 		net_->ActErrorToProto(&act_error_param);
 		WriteProtoToBinaryFile(act_error_param, act_error_filename.c_str());
 		WriteProtoToTextFile(act_error_param, (act_error_filename+"_t").c_str());
+		*/
+
 
 	}
 

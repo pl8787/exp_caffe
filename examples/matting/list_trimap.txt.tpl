@@ -1,0 +1,1 @@
+C:\pangl\Caffe\exp_caffe\examples\matting\data\trimap_training_lowres\Trimap1\GT%02d.png  1

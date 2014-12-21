@@ -1,0 +1,82 @@
+name: "CIFAR10_quick_test"
+layers {
+  name: "data"
+  type: IMAGE_DATA
+  top: "data"
+  top: "l1"
+  image_data_param {
+    source: "list_data_sim.txt"
+    batch_size: 1
+    scale: 0.0039215686274
+  }
+}
+layers {
+  name: "trimap"
+  type: IMAGE_DATA
+  top: "trimap"
+  top: "l2"
+  image_data_param {
+    source: "list_gt_sim.txt"
+    batch_size: 1
+    scale: 0.0078125
+    bias: 128
+    channels: 1
+  }
+}
+layers {
+  name: "cccp1"
+  type: CONVOLUTION
+  bottom: "data"
+  top: "cccp1"
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 64
+    pad: 0
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.1
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+layers {
+  name: "cccp5"
+  type: CONVOLUTION
+  bottom: "cccp1"
+  top: "cccp5"
+  blobs_lr: 1
+  blobs_lr: 2
+  convolution_param {
+    num_output: 1
+    pad: 0
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+layers {
+  name: "tanh7"
+  type: TANH
+  bottom: "cccp5"
+  top: "cccp5"
+}
+layers {
+  name: "loss"
+  type: MATTING
+  bottom: "cccp5"
+  bottom: "trimap"
+  top: "loss"
+}

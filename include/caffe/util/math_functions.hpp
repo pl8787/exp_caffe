@@ -249,6 +249,14 @@ void caffe_cpu_scale(const int n, const Dtype alpha, const Dtype *x, Dtype* y);
 template <typename Dtype>
 void caffe_gpu_scale(const int n, const Dtype alpha, const Dtype *x, Dtype* y);
 
+template <typename Dtype>
+void caffe_cpu_zeros(const int n, const Dtype *x, Dtype *y);
+
+template <typename Dtype>
+void caffe_cpu_minmax(const int n, const Dtype *x, Dtype *y, const Dtype minv, const Dtype maxv);
+
+template <typename Dtype>
+void caffe_cpu_expand0(const int height, const int width, const int wsize, const Dtype *x, Dtype *y);
 }  // namespace caffe
 
 

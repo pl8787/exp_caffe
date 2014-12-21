@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 #include "leveldb/db.h"
 //#include "pthread.h"
@@ -17,6 +18,7 @@
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
+#include "opencvlib.h"
 
 #define HDF5_DATA_DATASET_NAME "data"
 #define HDF5_DATA_LABEL_NAME "label"
@@ -387,6 +389,144 @@ class EuclideanLossLayer : public Layer<Dtype> {
   //     const bool propagate_down, vector<Blob<Dtype>*>* bottom);
 
   Blob<Dtype> difference_;
+};
+
+template <typename Dtype>
+class EuclideanMaskLossLayer : public Layer<Dtype> {
+ public:
+  explicit EuclideanMaskLossLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), difference_(), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // virtual Dtype Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+  //     vector<Blob<Dtype>*>* top);
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+  // virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+  //     const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+
+  Blob<Dtype> difference_;
+  Blob<Dtype> mask_;
+  bool has_mask_;
+};
+
+template <typename Dtype>
+class EuclideanMaskLayer : public Layer<Dtype> {
+ public:
+  explicit EuclideanMaskLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), difference_(), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // The accuracy layer should not be used to compute backward operations.
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom) {
+    NOT_IMPLEMENTED;
+  }
+
+  Blob<Dtype> difference_;
+  Blob<Dtype> mask_;
+  bool has_mask_;
+};
+
+template <typename Dtype>
+class MaskWeightLayer : public Layer<Dtype> {
+ public:
+  explicit MaskWeightLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // virtual Dtype Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+  //     vector<Blob<Dtype>*>* top);
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+  // virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+  //     const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+
+  int width_;
+  int height_;
+  int channel_;
+
+  bool need_bottom_;
+  bool need_mask_;
+  int expand0_;
+
+  Blob<Dtype> mask_;
+  bool has_mask_;
+};
+
+template <typename Dtype>
+class MattingLossLayer : public Layer<Dtype> {
+ public:
+  explicit MattingLossLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), difference_(), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // virtual Dtype Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+  //     vector<Blob<Dtype>*>* top);
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+  // virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+  //     const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+  void GetLaplacianMatrix(Blob<Dtype>* img, Blob<Dtype>* trimap);
+  void Locate(int l1, int l2, Dtype l3);
+  bool CheckKnown(cv::Mat& trimap, cv::Mat& w_ind);
+  void CheckL(int height, int width);
+
+  Blob<Dtype> difference_;
+  Blob<Dtype> mask_;
+
+  // epsilon is a parameter while in compute Laplacian Matrix
+  Dtype epsilon;
+  // beta is a parameter that define how many data term error pass back
+  Dtype beta;
+  // gamma is a parameter that define how many smooth term error pass back
+  Dtype gamma;
+  // lambda is a parameter in smooth term that determind how many 
+  // percentage of a L_ loss have.
+  Dtype lambda;
+  bool has_mask_;
+  bool has_L_;
+  
+  std::unordered_map<int, std::unordered_map<int, Dtype> > L_;
+};
+
+template <typename Dtype>
+class MattingLayer : public Layer<Dtype> {
+ public:
+  explicit MattingLayer(const LayerParameter& param)
+      : Layer<Dtype>(param), difference_(), mask_() {}
+  virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+ protected:
+  virtual Dtype Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  // The accuracy layer should not be used to compute backward operations.
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const bool propagate_down, vector<Blob<Dtype>*>* bottom) {
+    NOT_IMPLEMENTED;
+  }
+
+  Blob<Dtype> difference_;
+  Blob<Dtype> mask_;
+  bool has_mask_;
+
 };
 
 template <typename Dtype>

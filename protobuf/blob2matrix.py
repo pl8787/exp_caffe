@@ -1,12 +1,12 @@
 import caffe_pb2
 
-net_file = 'cifar10_quick_co_iter_500'
+net_file = 'cifar10_quick_dlap_iter_1000'
 
 net = caffe_pb2.NetParameter()
 f = open(net_file,'rb')
 net.ParseFromString(f.read())
 f.close()
-blob = net.layers[1].blobs[2]
+blob = net.layers[2].blobs[0]
 data = blob.data
 
 print blob.channels
