@@ -32,7 +32,7 @@ layers {
   blobs_lr: 1
   blobs_lr: 2
   convolution_param {
-    num_output: 32
+    num_output: 8
     pad: 1
     kernel_size: 3
     stride: 1
@@ -61,13 +61,13 @@ layers {
   blobs_lr: 1
   blobs_lr: 2
   convolution_param {
-    num_output: 16
-    pad: 2
-    kernel_size: 5
+    num_output: 3
+    pad: 7
+    kernel_size: 15
     stride: 1
     weight_filler {
       type: "gaussian"
-      std: 0.01
+      std: 0.0001
     }
     bias_filler {
       type: "constant"

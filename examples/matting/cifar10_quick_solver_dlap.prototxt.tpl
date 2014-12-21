@@ -11,19 +11,19 @@ test_iter: 1
 # Carry out testing every 500 training iterations.
 test_interval: 10
 # The base learning rate, momentum and the weight decay of the network.
-base_lr: 0.000002
+base_lr: 0.000001
 momentum: 0
 weight_decay: 0
 # The learning rate policy
 lr_policy: "step"
-stepsize: 600
+stepsize: 50
 gamma: 0.5
 # Display every 100 iterations
 display: 1
 # The maximum number of iterations
-max_iter: 1800
+max_iter: 200
 # snapshot intermediate results
-snapshot: 20
+snapshot: 50
 snapshot_prefix: "models_dlap/GT%02d/cifar10_quick_dlap"
 snapshot_txt: false
 # solver mode: CPU or GPU

@@ -94,6 +94,8 @@ message SolverParameter {
   // (and by default) initialize using a seed derived from the system clock.
   optional int64 random_seed = 20 [default = -1];
   optional bool snapshot_txt = 22 [default = false];
+  optional string result_blob_name = 23 [default = ""];
+  optional string result_file_name = 24 [default = ""];
 }
 
 // A message that stores the solver snapshots
@@ -278,6 +280,7 @@ message MaskWeightParameter {
 	optional FillerParameter weight_filler = 1; // The filler for the weight
 	optional bool need_bottom = 2 [default = true]; // Need use of bottom data, bottom[0]
 	optional bool need_mask = 3 [default = true]; // Need use of mask, bottom[1]
+	optional uint32 expand0 = 4 [default = 0]; // Expand 0 element in mask
 }
 
 // Message that stores parameters used by MattingLossLayer

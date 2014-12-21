@@ -136,6 +136,15 @@ namespace caffe {
 					}
 				}
 			}
+
+			if (param_.result_blob_name().length() != 0) {
+				LOG(INFO) << "Output result to file " << param_.result_file_name();
+				const int kBufferSize = 20;
+				char iter_str_buffer[kBufferSize];
+				_snprintf(iter_str_buffer, kBufferSize, "_iter_%d_p_%d", iter_, i);
+				string result_file_name = param_.result_file_name() + iter_str_buffer;
+				test_net_->ActErrorToProtoS(result_file_name, param_.result_blob_name(), false, false);
+			}
 		}
 		if (param_.test_compute_loss()) {
 			loss /= param_.test_iter();

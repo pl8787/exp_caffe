@@ -156,7 +156,10 @@ namespace caffe {
 			} else {
 				LOG(INFO) << layer_names_[i] << " does not need backward computation.";
 			}
+			
 		}
+
+
 		// In the end, all remaining blobs are considered output blobs.
 		for (set<string>::iterator it = available_blobs.begin();
 			it != available_blobs.end(); ++it) {
@@ -407,6 +410,28 @@ namespace caffe {
 				}
 			}
 		}
+	}
+
+	template <typename Dtype>
+	void Net<Dtype>::ActErrorToProtoS(string filename, string blob_name, bool write_diff, bool is_text) {
+		BlobProto param;
+		// search for the blob index from blob_name
+		int blob_index;
+		if (has_blob(blob_name)) {
+			blob_index = blob_names_index_[blob_name];
+		} else {
+			LOG(INFO) << "Error: blob not found.";
+			return;
+		}
+		LOG(INFO) << "Serializing Act & Error of " << blob_name << "(" << blob_index << ")";
+		// get specific blob
+		blobs_[blob_index]->ToProto(&param, write_diff);
+		if (is_text) {
+			WriteProtoToTextFile(param, filename);
+		} else {
+			WriteProtoToBinaryFile(param, filename);
+		}
+
 	}
 
 	template <typename Dtype>

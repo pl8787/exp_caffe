@@ -8,7 +8,7 @@ gt_file_tpl = open('list_gt.txt.tpl').read()
 trimap_file_tpl = open('list_trimap.txt.tpl').read()
 data_file_tpl = open('list_data.txt.tpl').read()
 
-pic_list = [1, 2, 4, 6, 8, 16, 18, 25, 26, 27]
+pic_list = range(1, 28) #[1, 2, 4, 6, 8, 16, 18, 25, 26, 27]
 
 for i in pic_list:
     open('cifar10_quick_solver%s.prototxt' % tag,'w').write(solver_file_tpl % i)

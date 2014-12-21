@@ -27,22 +27,9 @@ layers {
 }
 
 layers {
-  name: "test"
-  type: IMAGE_DATA
-  top: "test"
-  top: "l4"
-  image_data_param {
-    source: "list_one_masklap.txt"
-    batch_size: 1
-    scale: 0.0078125
-    channels: 1
-  }
-}
-
-layers {
   name: "cccp0"
   type: MASK_WEIGHT
-  bottom: "test"
+  bottom: "trimap"
   bottom: "trimap"
   top: "cccp0"
   mask_weight_param {
@@ -50,9 +37,17 @@ layers {
       type: "gaussian"
       std: 0.1
     }
-    need_mask: false
+    need_mask: true
     need_bottom: false
+    expand0: 2
   }
+}
+
+layers {
+  name: "tanh1"
+  type: TANH
+  bottom: "cccp0"
+  top: "cccp0"
 }
 
 layers {

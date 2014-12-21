@@ -303,7 +303,7 @@ namespace caffe {
 	template <typename Dtype>
 	void EuclideanMaskLayer<Dtype>::SetUp(
 		const vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>* top) {
-			CHECK_EQ(bottom.size(), 2) << "Loss Layer takes two blobs as input.";
+			CHECK_EQ(bottom.size(), 3) << "Loss Layer takes three blobs as input.";
 			CHECK_EQ(top->size(), 1) << "Loss Layer takes one as output.";
 			CHECK_EQ(bottom[0]->num(), bottom[1]->num())
 				<< "The data and label should have the same number.";
@@ -327,8 +327,8 @@ namespace caffe {
 			int num = bottom[0]->num();
 
 			if (!has_mask_) {
-				caffe_cpu_fabs(count, bottom[1]->cpu_data(), mask_.mutable_cpu_data());
-				caffe_cpu_sign(count, mask_.cpu_data(), mask_.mutable_cpu_data());
+				caffe_cpu_fabs(count, bottom[2]->cpu_data(), mask_.mutable_cpu_data());
+				caffe_cpu_zeros(count, mask_.cpu_data(), mask_.mutable_cpu_data());
 				has_mask_ = true;
 			}
 

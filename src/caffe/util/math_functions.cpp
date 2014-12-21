@@ -520,4 +520,61 @@ namespace caffe {
 		}
 	}
 
+	template <>
+	void caffe_cpu_minmax(const int n, const float *x, float *y, const float minv, const float maxv) {
+		for (int i = 0; i < n; ++i) {
+			if (x[i] < minv)		y[i] = minv;
+			else if (x[i] > maxv)	y[i] = maxv;
+			else					y[i] = x[i];
+		}
+	}
+
+	template <>
+	void caffe_cpu_minmax(const int n, const double *x, double *y, const double minv, const double maxv) {
+		for (int i = 0; i < n; ++i) {
+			if (x[i] < minv)		y[i] = minv;
+			else if (x[i] > maxv)	y[i] = maxv;
+			else					y[i] = x[i];
+		}
+	}
+
+	template <>
+	void caffe_cpu_expand0(const int height, const int width, const int wsize, const float *x, float *y) {
+		int count = height * width;
+		for (int i = 0; i < count; ++i) {
+			y[i] = x[i];
+		}
+		for (int i = 0; i < count; ++i) {
+			if (x[i] == 0)
+			{
+				int h = i / width;
+				int w = i % width;
+				for (int wh = std::max(h-wsize, 0); wh <= std::min(h+wsize, height-1); ++wh) {
+					for (int ww = std::max(w-wsize, 0); ww <= std::min(w+wsize, width-1); ++ww) {
+						y[wh*width+ww] = 0;
+					}
+				}
+			}
+		}
+	}
+
+	template <>
+	void caffe_cpu_expand0(const int height, const int width, const int wsize, const double *x, double *y) {
+		int count = height * width;
+		for (int i = 0; i < count; ++i) {
+			y[i] = x[i];
+		}
+		for (int i = 0; i < count; ++i) {
+			if (x[i] == 0)
+			{
+				int h = i / width;
+				int w = i % width;
+				for (int wh = std::max(h-wsize, 0); wh <= std::min(h+wsize, height-1); ++wh) {
+					for (int ww = std::max(w-wsize, 0); ww <= std::min(w+wsize, width-1); ++ww) {
+						y[wh*width+ww] = 0;
+					}
+				}
+			}
+		}
+	}
 }  // namespace caffe

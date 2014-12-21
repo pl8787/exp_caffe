@@ -55,6 +55,7 @@ namespace caffe {
 					bias_multiplier_data[i] = 1.;
 				}
 			}
+			LOG(INFO) << blobs_.size();
 	}
 
 	template <typename Dtype>

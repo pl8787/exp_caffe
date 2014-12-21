@@ -50,6 +50,7 @@ namespace caffe {
 
 			need_bottom_ = this->layer_param_.mask_weight_param().need_bottom();
 			need_mask_ = this->layer_param_.mask_weight_param().need_mask();
+			expand0_ = this->layer_param_.mask_weight_param().expand0();
 
 			if (!need_bottom_)
 				LOG(INFO) << "Input of bottom[0] will be ignored.";
@@ -67,8 +68,17 @@ namespace caffe {
 			int num = bottom[0]->num();
 
 			if (!has_mask_) {
-				caffe_cpu_zeros(bottom[1]->count(), bottom[1]->cpu_data(), mask_.mutable_cpu_data());
+				if (expand0_) {
+					caffe_cpu_expand0(bottom[1]->height(), bottom[1]->width(), expand0_, bottom[1]->cpu_data(), mask_.mutable_cpu_data());
+					caffe_cpu_zeros(mask_.count(), mask_.cpu_data(), mask_.mutable_cpu_data());
+				} else {
+					caffe_cpu_zeros(bottom[1]->count(), bottom[1]->cpu_data(), mask_.mutable_cpu_data());
+				}
 				has_mask_ = true;
+				Mat mask_img(mask_.height(), mask_.width(), CV_32FC1);;
+				ChangeBlobToImage(&mask_, mask_img);
+				imshow("img", mask_img);
+				waitKey(0);
 			}
 
 			Dtype *top_data = (*top)[0]->mutable_cpu_data();
